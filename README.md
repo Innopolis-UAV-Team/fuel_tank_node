@@ -1,6 +1,6 @@
 # Fuel tank DroneCAN application
 
-> Wiki for details: [DroneCAN template application](https://github.com/RaccoonlabDev/mini_v2_node/wiki/dronecan).
+> Developers docs: [DroneCAN template application](https://github.com/RaccoonlabDev/mini_v2_node/wiki/dronecan).
 
 ### 1. Key features
 
@@ -8,10 +8,16 @@
 
 ### 2. Brief hardware info
 
-| View | Top view | Bottom view | Pinout |
-| ---- | --- | ------ |-|
-| kirpi | kirpi | kirpi | kirpi pinout |
+| View | Drw |
+| ---- | ------ |
+| <img src="assets/view.png" alt="drawing" height="200"> | <img src="assets/drw.png" alt="drawing" height="200"> |
 
-### 3. Dronecan application capabilities
+### 3. Application interface
 
-> in process
+The node measures fuel tank level with [AS5600](https://github.com/ZilantRobotics/libperiph/tree/master/sensors/encoder) and sends [FuelTankStatus](https://dronecan.github.io/Specification/7._List_of_standard_data_types/#fueltankstatus).
+
+The node should measure with 10 Hz rate and publish data with 1 Hz rate.
+
+The node has the following parameters:
+- fuel.min_value (calibration value means 0% or fuel tank is empty),
+- fuel.max_value (calibration value means 100% or fuel tank is full).
