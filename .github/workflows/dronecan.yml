@@ -22,11 +22,12 @@ jobs:
         with:
           repository: PonomarevDA/libparams
           path: 'Libs/libparams'
-      - name: 3. Checkout stm32-cube-project (public or private)
+      - name: 3. Checkout stm32-cube-project (private)
         uses: actions/checkout@v3
         with:
-          repository: RaccoonLabHardware/mini-v2-software
+          repository: Innopolis-UAV-Team/fuel-tank-ioc
           path: 'Libs/stm32-cube-project'
+          token: ${{ secrets.FUEL_TANK_IOC_TOKEN }}
       - name: 4. Checkout tools (public)
         uses: actions/checkout@v3
         with:
@@ -50,30 +51,3 @@ jobs:
       - name: Run SITL for 5 seconds
         if: ${{ matrix.target == 'sitl_dronecan' }}
         run: timeout 5s make run || res=$?; if [[ $res -ne 124 && $res -ne 0 ]]; then exit $res; fi
-
-
-  # sitl:
-  #   runs-on: ubuntu-22.04
-  #   timeout-minutes: 10
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         submodules: recursive
-  #         fetch-depth: 0
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         repository: PonomarevDA/dronecan_application
-  #         path: 'Libs/Dronecan'
-  #         token: ${{ secrets.DRONECAN_APPLICATION_TOKEN }}
-  #         fetch-depth: 0
-  #     - name: Checkout Dronecan
-  #       run: cd Libs/Dronecan && git checkout bb50fad # v0.3.1
-
-  #     - name: Install dependencies
-  #       run: ./scripts/tools/install_for_ubuntu.sh --yes
-
-  #     - name: Build SITL DroneCAN
-  #       run: make sitl_dronecan
-
-  #     - name: Run SITL for 5 seconds
-  #       run: timeout 5s make run || res=$?; if [[ $res -ne 124 && $res -ne 0 ]]; then exit $res; fi

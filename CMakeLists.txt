@@ -111,7 +111,7 @@ else()
     )
 
     target_link_options(${EXECUTABLE} PRIVATE
-        -T${stm32cubeMxProjectPath}/STM32F103T8Ux_FLASH.ld
+        -T${stm32cubeMxProjectPath}/STM32F103T8UX_FLASH.ld
         -mcpu=cortex-m3
         -mthumb
         --specs=nosys.specs
