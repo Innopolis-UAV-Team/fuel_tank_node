@@ -18,15 +18,7 @@ VtolFuelTank::VtolFuelTank() {
 
 
 int8_t VtolFuelTank::init() {
-    // _battery_info.current = 0.0;
-    // _battery_info.voltage = 0.0;
-    // _battery_info.temperature = 0.0;
-    // _battery_info.average_power_10sec = 0;
-    // _battery_info.remaining_capacity_wh = NAN;
-    // _battery_info.full_charge_capacity_wh = NAN;
-    // _battery_info.hours_to_full_charge = 0;
-    // _battery_info.state_of_health_pct = 0;
-    // _battery_info.state_of_charge_pct_stdev = 0;
+
     _tank_info.available_fuel_volume_cm3=0.0;
     _tank_info.available_fuel_volume_percent=0.0;
     _tank_info.fuel_consumption_rate_cm3pm = 1.0;
@@ -35,25 +27,19 @@ int8_t VtolFuelTank::init() {
     _tank_info.reserved = 0;
     
 
-    // DebugLogMessage_t msg{};
-    // msg.source_size = 2;
-    // msg.source[0] = 'h';
-    // msg.source[1] = 'i';
-    // msg.text[0] = '4';
-    // msg.text[1] = '2';
-    // msg.text[2] = '.';
-    // msg.text_size = 3;
     uint8_t transfer_id = 0;
-    // dronecan_protocol_debug_log_message_publish(&msg, &transfer_id);
+    _last_spin_time_ms = 0;
 
     return 0;
 }
 
 void VtolFuelTank::process() {
-    // uint32_t crnt_time_ms = HAL_GetTick();
-    // if (crnt_time_ms < _last_spin_time_ms + 200) {
-    //     return;
-    // }
+    uint32_t crnt_time_ms = HAL_GetTick();
+    if (crnt_time_ms < _last_spin_time_ms + 200) {
+        return;
+    }
+    
+    _last_spin_time_ms = HAL_GetTick();
     dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &_transfer_id);
     _transfer_id++;
 
