@@ -23,7 +23,7 @@ void application_entry_point() {
     uavcanSetNodeName(node_name);
 
     VtolFuelTank fuel_tank;
-    fuel_tank.init();    
+    fuel_tank.init(0, 0);    
     
 
 

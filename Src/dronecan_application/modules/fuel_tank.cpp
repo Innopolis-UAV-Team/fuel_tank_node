@@ -9,59 +9,66 @@
 #include "string_params.hpp"
 #include "string_params.hpp"
 #include "storage.h"
-// #include "uavcan/protocol/debug/LogMessage.h"
-
 
 
 VtolFuelTank::VtolFuelTank() {
 }
 
 
-int8_t VtolFuelTank::init() {
-
+int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
     _tank_info.available_fuel_volume_cm3=0.0;
     _tank_info.available_fuel_volume_percent=0.0;
     _tank_info.fuel_consumption_rate_cm3pm = 1.0;
     _tank_info.fuel_tank_id=0;
     _tank_info.fuel_temperature=200;
-    _tank_info.reserved = 0;
+    _tank_info.reserved = is_reserved;
     
+    uint8_t transfer_id = tank_id;
 
-    uint8_t transfer_id = 0;
-    _last_spin_time_ms = 0;
+    this->as5600.init();
 
     return 0;
 }
 
 void VtolFuelTank::process() {
     uint32_t crnt_time_ms = HAL_GetTick();
-    if (crnt_time_ms < _last_spin_time_ms + 200) {
+
+    // TODO: change to 1 Hz
+    if (crnt_time_ms < _last_publish_time_ms + 200) {
+        return;
+    }
+
+    update_data();
+    const int8_t can_publish_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &_transfer_id);
+
+    if (can_publish_status != 0) {
+        // TODO: log error here
+    }
+
+    _transfer_id++;
+    _last_publish_time_ms = HAL_GetTick();
+}
+
+void VtolFuelTank::update_data(){
+    uint32_t crnt_time_ms = HAL_GetTick();
+
+    // TODO: change to 0.2 Hz
+    if (crnt_time_ms < _last_update_time_ms + 200) {
         return;
     }
     
-    _last_spin_time_ms = HAL_GetTick();
-    dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &_transfer_id);
-    _transfer_id++;
+    const int8_t as5600_status = this->as5600.get_data(RAW_ANGLE,this->as5600.data.raw_angle, 2);
+    if (as5600_status != 0) {
+        // TODO: log error here
+    }
+    this->_tank_info.available_fuel_volume_percent = as5600.data.raw_angle;
+    if (_tank_info.fuel_consumption_rate_cm3pm == 0){
+        _tank_info.fuel_consumption_rate_cm3pm = 1;
+    }
+    else{
+        _tank_info.fuel_consumption_rate_cm3pm = 0;
 
-    // _spin_once();
+    }
+
+    _last_update_time_ms = HAL_GetTick();
 }
-
-// void VtolFuelTank::_spin_once() {
-//     _last_spin_time_ms = HAL_GetTick();
-
-//     float voltage = AdcPeriphery::get(AdcChannel::ADC_VIN) * 19.0 * 3.3 / 4096.0;
-//     _battery_info.voltage = voltage;
-
-//     uint16_t adc_temperature = AdcPeriphery::get(AdcChannel::ADC_TEMPERATURE);
-//     static const uint16_t TEMP_REF = 25;
-//     static const uint16_t ADC_REF = 1750;   ///< v_ref / 3.3 * 4095
-//     static const uint16_t AVG_SLOPE = 5;    ///< avg_slope/(3.3/4096)
-//     float kelvin = (ADC_REF - adc_temperature) / AVG_SLOPE + TEMP_REF + 273.15;
-//     _battery_info.temperature = kelvin;
-
-//     float current = AdcPeriphery::get(AdcChannel::ADC_CRNT) * 600.0 * (3.3 / 3.0 / 4096.0);
-//     _battery_info.current = current;
-
-//     dronecan_equipment_battery_info_publish(&_battery_info, &_transfer_id);
-//     _transfer_id++;
-// }
