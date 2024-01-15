@@ -65,6 +65,7 @@ add_executable(${EXECUTABLE}
     ${ROOT_DIR}/Src/platform/${APP_PLATFORM}/pwm.cpp
     ${ROOT_DIR}/Src/platform/${APP_PLATFORM}/led.cpp
     ${ROOT_DIR}/Src/platform/${APP_PLATFORM}/platform_specific.cpp
+    ${ROOT_DIR}/Src/platform/${APP_PLATFORM}/as5600.cpp
 )
 
 include_directories(${libsHeaders})
