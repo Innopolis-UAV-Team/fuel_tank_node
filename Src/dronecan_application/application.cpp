@@ -25,8 +25,6 @@ void application_entry_point() {
     VtolFuelTank fuel_tank;
     fuel_tank.init(0, 0);    
     
-
-
     while(true) {
         fuel_tank.process();
         LedPeriphery::toggle(LedColor::BLUE_COLOR);

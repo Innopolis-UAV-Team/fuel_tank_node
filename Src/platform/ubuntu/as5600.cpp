@@ -19,22 +19,18 @@ using namespace std;
 
 
 int8_t As5600Periphery::init() {
-
-
-    uint8_t check, select;
-
     this->data.raw_angle = 0;
     return 0;
 }
 
 
-int8_t As5600Periphery::get_data(as5600_addr mem_addr, uint16_t pData, int n_bytes){
+int8_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pData){
     
     switch (mem_addr)
     {
     case RAW_ANGLE:
         this->data.raw_angle+= 0.1;
-        pData = this->data.raw_angle;
+        *pData = this->data.raw_angle;
         printf("AS5600:\tRAW_ANGLE_READING\t%d\n", pData);
         break;
 
