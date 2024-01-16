@@ -5,6 +5,9 @@
 #define SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
 
 #include <stdint.h>
+#include "i2c.h"
+#include <string> 
+#include "uavcan/protocol/debug/LogMessage.h"
 
 /**
  * @note AS5600 registers
@@ -17,28 +20,49 @@
 #define STATE       0x0B        // gives MH, ML and MD
 #define BURN_ANGLE  0xFF        // use to permanently program the device.
 
+#define I2C_ADDRESS_AS5600  0x36
+#define I2C_TIMOUT_MS       1000
+#define AS5600_12_BIT_MASK (uint16_t)4095
+
+#define AS5600_MAGNET_DETECTED                                                 \
+    (uint8_t)(1UL << 5) /*Status bit indicates b-field is detected */
+
 typedef uint8_t as5600_addr;
 
 struct as5600_data
 {
     /* data */
-    float raw_angle;
-    float max_value;
+    uint16_t raw_angle;
+    uint16_t max_value;
+    uint16_t start_angle;
+    uint8_t mag_status;
 };
 
 class As5600Periphery
 {
 public:
     // TODO: add sensor parameters
-    as5600_data data = {.raw_angle = 0.0, .max_value = 1.0};
-
-    int8_t init();
+    as5600_data data = {.raw_angle = 0, .max_value = 4, .start_angle=0, .mag_status=0};
+    // as5600_data data = {.raw_angle = 0, .max_value = 4095, .start_angle=0,};
+    
+    HAL_StatusTypeDef init();
     int8_t reset();
     int8_t update_zpos();
-    int8_t get_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
-    int8_t write_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
+    HAL_StatusTypeDef get_angle_data(as5600_addr mem_addr, uint16_t *const pData);
+    HAL_StatusTypeDef get_magnet_status(uint8_t *const stat);
+    // int8_t get_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
+    HAL_StatusTypeDef write_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
 private:
-    uint32_t _last_spin_time_ms{0};
+    HAL_StatusTypeDef get_8_register(as5600_addr mem_addr, uint8_t  *const pData);
+    HAL_StatusTypeDef get_16_register(as5600_addr mem_addr, uint16_t  *const pData);
+    HAL_StatusTypeDef write_16_to_reg(as5600_addr mem_addr, uint16_t *const data);
+    HAL_StatusTypeDef write_8_to_reg(as5600_addr mem_addr, uint8_t *const data);
+
+
+    uint8_t _log_transfer_id = 0;
+
+    DebugLogMessage_t init_mes{};    
+    DebugLogMessage_t proc_mes{};    
 };
 
 #endif // SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
