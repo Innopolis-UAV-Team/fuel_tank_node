@@ -84,7 +84,7 @@ int8_t VtolFuelTank::process() {
     uint8_t hal_status = HAL_OK;
     
     // TODO: fix the read_16_reg()
-    // hal_status = update_data();
+    hal_status = update_data();
     
     if (hal_status != 0){
         char buffer[90];
@@ -120,8 +120,8 @@ int8_t VtolFuelTank::update_data(){
     }
     _last_update_time_ms = HAL_GetTick();
 
-    // as5600_error_t as5600_stat = as5600.get_angle_data(RAW_ANGLE, &as5600.data.raw_angle);
-    as5600_error_t as5600_stat = as5600.get_angle_data(ZPOS, &as5600.data.start_angle);
+    as5600_error_t as5600_stat = as5600.get_angle_data(RAW_ANGLE, &as5600.data.raw_angle);
+    // as5600_error_t as5600_stat = as5600.get_angle_data(ZPOS, &as5600.data.start_angle);
 
     if (as5600_stat!=AS5600_ERROR_SUCCESS){
         return as5600_stat;
