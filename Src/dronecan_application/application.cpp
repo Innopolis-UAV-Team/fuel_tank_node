@@ -24,10 +24,15 @@ void application_entry_point() {
 
     VtolFuelTank fuel_tank;
     fuel_tank.init(0, 0);    
-    
+
     while(true) {
-        fuel_tank.process();
+        uint8_t status = fuel_tank.process();
+        if (status != 0){
+            LedPeriphery::toggle(LedColor::RED_COLOR);
+        }
+        else{
         LedPeriphery::toggle(LedColor::BLUE_COLOR);
+        }
         uavcanSpinOnce();
     }
 }

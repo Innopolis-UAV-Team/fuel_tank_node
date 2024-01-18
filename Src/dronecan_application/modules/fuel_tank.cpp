@@ -3,25 +3,38 @@
 
 #include "fuel_tank.hpp"
 #include <math.h>
-#include "dronecan.h"
-#include "main.h"
-#include "params.hpp"
-#include "string_params.hpp"
-#include "string_params.hpp"
-#include "storage.h"
 #include "uavcan/protocol/debug/LogMessage.h"
 #include "logging.h"
 
 VtolFuelTank::VtolFuelTank() {
 }
 
-// ES - status publish error 
-// EP - log periphery status publish error
-// EP - update status publish error
 int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
+    
     set_source(this->init_mes, "fuel_init");
     set_source(this->proc_mes, "fuel_proc");
     
+
+    HAL_StatusTypeDef hal_status = HAL_I2C_Init(&hi2c1);
+
+    if (hal_status != HAL_OK){
+        char buffer[90];
+        sprintf(buffer, "I2C_init_status %d", hal_status);
+        set_text(this->init_mes, buffer);
+        dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
+        _log_transfer_id++;
+        return hal_status;
+    }
+
+    hal_status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_AS5600, 100, I2C_TIMOUT_MS);
+    if (hal_status != HAL_OK){
+        char buffer[90];
+        sprintf(buffer, "I2C_isDeviceReady_status %d", hal_status);
+        set_text(this->init_mes, buffer);
+        dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
+        _log_transfer_id++;
+    }
+
     uint8_t transfer_id = 0;
     _tank_info.available_fuel_volume_percent = 0;
     _tank_info.available_fuel_volume_cm3 = 0.0;
@@ -34,62 +47,57 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
 
     if (can_publish_status != 0){
         set_text(this->init_mes, "PUB_ERROR");
-        
         dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
         _log_transfer_id++;
+        return HAL_ERROR;
      }  
-    //  else {
-    //     init_mes.text[0] = 'O';
-    //     init_mes.text[1] = 'K';
-    //     init_mes.text[2] = 'S';
-    //     init_mes.text[3] = as5600.data.mag_status;
-    //     init_mes.text_size = 4;
-    //     dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
-    // }
 
-    int8_t hal_status = this->as5600.init();
+    as5600_error_t as5600_status = this->as5600.init();
 
-    if (hal_status != 0){
-        set_text(this->init_mes, "AS_INIT_ERROR");
-        dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
-        _log_transfer_id++;
-    }
-    else {
+    if (as5600_status != 0){
         char buffer[90];
-        sprintf(buffer, "OK_AS5600_INIT: %d", this->as5600.data.mag_status);
+        sprintf(buffer, "AS5600_INIT_ERROR: %d", as5600_status);
         set_text(this->init_mes, buffer);
         dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
-}
+        _log_transfer_id++;
+        return HAL_ERROR;
+    } else {
+        char buffer[90];
+        sprintf(buffer, "AS5600_INIT: %d", this->as5600.data.mag_status);
+        set_text(this->init_mes, buffer);
+        dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
+    }
     _transfer_id++;
     return 0;
 }
 
-void VtolFuelTank::process() {
+int8_t VtolFuelTank::process() {
     uint32_t crnt_time_ms = HAL_GetTick();
 
     // TODO: change to 1 Hz
     if (crnt_time_ms < _last_publish_time_ms + 200) {
-        return;
+        return 0;
     }
 
-    uint8_t hal_status = update_data();
+    _last_publish_time_ms = HAL_GetTick();
 
+    uint8_t hal_status = HAL_OK;
+    
+    // TODO: fix the read_16_reg()
+    // hal_status = update_data();
+    
     if (hal_status != 0){
         char buffer[90];
-        sprintf(buffer, "Update hal status: %d", hal_status);
+        sprintf(buffer, "UPDATE hal status: %d", hal_status);
         set_text(this->proc_mes, buffer);
 
         dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
         _log_transfer_id++;
-    }//  else {
-    //     proc_mes.text[0] = 'O';
-    //     proc_mes.text[1] = 'K';
-    //     proc_mes.text[2] = 'U';
-    //     proc_mes.text_size = 4;
-    //     dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
-    // }
+        return HAL_ERROR;
+    }
 
     const int8_t can_publish_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &_transfer_id);
+    _transfer_id++;
 
     if (can_publish_status != 0){
         char buffer[90];
@@ -98,18 +106,9 @@ void VtolFuelTank::process() {
 
         dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
         _log_transfer_id++;
-    } //else {
-    //     proc_mes.text[0] = 'O';
-    //     proc_mes.text[1] = 'K';
-    //     proc_mes.text[2] = as5600.data.raw_angle;
-    //     proc_mes.text[3] = as5600.data.start_angle;
-    //     proc_mes.text[4] = 'F';
-    //     proc_mes.text_size = 5;
-    //     dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
-    // }
-
-    _transfer_id++;
-    _last_publish_time_ms = HAL_GetTick();
+        return HAL_ERROR;
+    } 
+    return hal_status;
 }
 
 int8_t VtolFuelTank::update_data(){
@@ -119,12 +118,17 @@ int8_t VtolFuelTank::update_data(){
     if (crnt_time_ms < _last_update_time_ms + 200) {
         return 0;
     }
+    _last_update_time_ms = HAL_GetTick();
 
-    as5600.get_angle_data(RAW_ANGLE, &as5600.data.raw_angle);
-    as5600.get_angle_data(ZPOS, &as5600.data.start_angle);
-    this->_tank_info.available_fuel_volume_cm3 += as5600.data.max_value;
+    // as5600_error_t as5600_stat = as5600.get_angle_data(RAW_ANGLE, &as5600.data.raw_angle);
+    as5600_error_t as5600_stat = as5600.get_angle_data(ZPOS, &as5600.data.start_angle);
+
+    if (as5600_stat!=AS5600_ERROR_SUCCESS){
+        return as5600_stat;
+    }
+
+    this->_tank_info.available_fuel_volume_cm3 = as5600.data.raw_angle;
     this->_tank_info.available_fuel_volume_percent = as5600.data.start_angle;
     this->_tank_info.fuel_consumption_rate_cm3pm += 0.1;
-    _last_update_time_ms = HAL_GetTick();
     return 0;
 }

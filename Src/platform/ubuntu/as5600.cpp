@@ -10,13 +10,6 @@
 #include <stdio.h>
 using namespace std;
 
-// HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
-// HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
-
-
-//   HAL_I2C_Master_Transmit(&hi2c1, (I2C_ADDRESS << 1), &regAddress, 1,  I2C_TIMEOUT);
-//   HAL_I2C_Master_Receive(&hi2c1, (I2C_ADDRESS << 1), &regData, 1,  I2C_TIMEOUT);
-
 
 int8_t As5600Periphery::init() {
     this->data.raw_angle = 0;
@@ -43,13 +36,13 @@ int8_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pDa
     case CONF:
         printf("AS5600:\tCONF_READING\t\t%d\n", pData);
         break;
-    case STATE:
+    case STATUS:
         printf("AS5600:\tSTATE_READING\t\t%d\n", pData);
         break;
     case ANGLE:
         printf("AS5600:\tANGLE_READING\t\t%d\n", pData);
         break;
-    case BURN_ANGLE:
+    case BURN:
         printf("AS5600:\tBURN_ANGLE_READING\t%d\n", pData);
         break;
     default:

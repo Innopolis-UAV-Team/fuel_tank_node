@@ -13,12 +13,6 @@ static inline bool set_source(DebugLogMessage_t &msg, const char *str) {
     return true;
 }
 
-// static inline bool format_str(uint8_t &dest, const char *fmt, va_list arg) {
-//     char buffer[90];
-//     sprintf(buffer, fmt, arg);
-//     return buffer;
-// }
-
 static inline bool set_text(DebugLogMessage_t &msg, const char *str) {
     if (strlen(str) > 90) {
     return false;
