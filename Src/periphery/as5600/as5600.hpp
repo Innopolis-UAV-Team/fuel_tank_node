@@ -39,17 +39,16 @@ typedef uint8_t as5600_addr;
 
 typedef enum as5600_error_e
 {
-        AS5600_ERROR_SUCCESS = 0,
-        AS5600_ERROR_BAD_PARAMETER,
-        AS5600_ERROR_RUNTIME_ERROR,
-        AS5600_ERROR_I2C_TRANSMIT_ERROR,
-        AS5600_ERROR_I2C_RECEIVE_ERROR,
-        AS5600_ERROR_NOT_INITIALIZED,
-        AS5600_ERROR_MAGNET_NOT_DETECTED,
-        AS5600_ERROR_MAX_WRITE_CYCLES_REACHED,
-        AS5600_ERROR_MIN_ANGLE_TOO_SMALL,
-        AS5600_ERROR_GENERAL_ERROR,
-        AS5600_ERROR_COUNT
+        AS5600_SUCCESS = 0,
+        AS5600_BAD_PARAMETER,
+        AS5600_RUNTIME_ERROR,
+        AS5600_I2C_ERROR,
+        AS5600_NOT_INITIALIZED,
+        AS5600_MAGNET_NOT_DETECTED,
+        AS5600_MAX_WRITE_CYCLES_REACHED,
+        AS5600_MIN_ANGLE_TOO_SMALL,
+        AS5600_GENERAL_ERROR,
+        AS5600_COUNT_ERROR
 } as5600_error_t;
 
 
@@ -83,10 +82,10 @@ public:
 
     as5600_error_t write_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
 private:
-    as5600_error_t get_8_register(as5600_addr mem_addr, uint8_t  *const pData);
-    as5600_error_t get_16_register(as5600_addr mem_addr, uint16_t  *const pData);
-    as5600_error_t write_16_to_reg(as5600_addr mem_addr, uint16_t data);
-    as5600_error_t write_8_to_reg(as5600_addr mem_addr, uint8_t data);
+    // as5600_error_t get_8_register(as5600_addr mem_addr, uint8_t  *const pData);
+    // as5600_error_t get_16_register(as5600_addr mem_addr, uint16_t  *const pData);
+    // as5600_error_t write_16_to_reg(as5600_addr mem_addr, uint16_t data);
+    // as5600_error_t write_8_to_reg(as5600_addr mem_addr, uint8_t data);
 
 
     uint8_t _log_transfer_id = 0;
