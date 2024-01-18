@@ -16,7 +16,8 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
     set_source(this->proc_mes, "fuel_proc");
     
 
-    HAL_StatusTypeDef hal_status = HAL_I2C_Init(&hi2c1);
+    HAL_StatusTypeDef hal_status = HAL_OK;
+    // HAL_StatusTypeDef hal_status = HAL_I2C_Init(&hi2c1);
 
     if (hal_status != HAL_OK){
         char buffer[90];
@@ -27,7 +28,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
         return hal_status;
     }
 
-    hal_status = HAL_I2C_IsDeviceReady(&hi2c1, I2C_AS5600, 100, I2C_TIMOUT_MS);
+    hal_status = (HAL_StatusTypeDef)isDeviceReady(I2C_AS5600, 100);
     if (hal_status != HAL_OK){
         char buffer[90];
         sprintf(buffer, "I2C_isDeviceReady_status %d", hal_status);
@@ -124,7 +125,7 @@ int8_t VtolFuelTank::update_data(){
     as5600_error_t as5600_stat = as5600.get_angle_data(RAW_ANGLE, &as5600.data.raw_angle);
     // as5600_error_t as5600_stat = as5600.get_angle_data(ZPOS, &as5600.data.start_angle);
 
-    if (as5600_stat!=AS5600_ERROR_SUCCESS){
+    if (as5600_stat!=AS5600_SUCCESS){
         return as5600_stat;
     }
 
