@@ -5,6 +5,7 @@
 #include <math.h>
 #include "uavcan/protocol/debug/LogMessage.h"
 #include "logging.h"
+#include "main.h"
 
 VtolFuelTank::VtolFuelTank() {
 }

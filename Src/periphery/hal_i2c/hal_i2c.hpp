@@ -11,7 +11,6 @@
 #define SRC_APPLICATION_PERIPHERY_HAL_I2C_
 
 #include "main.h"
-#include "i2c.h"
 
 
 #ifdef __cplusplus
