@@ -5,7 +5,6 @@
 #define SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
 
 #include <stdint.h>
-// #include "i2c.h"
 #include <string> 
 #include "uavcan/protocol/debug/LogMessage.h"
 #include "periphery/hal_i2c/hal_i2c.hpp"
@@ -33,9 +32,6 @@
 
 #define I2C_REQUEST_SIZE    1
 #define I2C_RESPONSE_SIZE   2
-
-static uint8_t AS5600_tx_buf[I2C_REQUEST_SIZE]  = {0x00};
-static uint8_t AS5600_rx_buf[I2C_RESPONSE_SIZE] = {0x00};
 
 
 typedef uint8_t as5600_addr;

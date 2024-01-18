@@ -17,17 +17,6 @@ as5600_error_t As5600Periphery::init()
     set_source(this->calb_mes, "as5600_calb");
 
     as5600_error_t status = AS5600_ERROR_SUCCESS;
-    HAL_StatusTypeDef hal_status = HAL_OK;
-
-    uint16_t old_max_val = data.max_value;
-
-    // hal_status = get_16_register(MANG, &(data.max_value));
-    // char buffer[90];
-    // sprintf(buffer, "AS5600 MANG: (HAL_STAT, MANG, Prev Max) %d%d%d", hal_status, __builtin_bswap16(data.max_value), old_max_val);
-    // set_text(this->init_mes, buffer);
-    // dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
-
-    // wait(100);
 
     status = get_magnet_status(&data.mag_status);
     if (status != AS5600_ERROR_SUCCESS) {
@@ -68,13 +57,13 @@ as5600_error_t As5600Periphery::calibrate()
     }
 
     status = write_16_to_reg(ZPOS, data.raw_angle);
-    if (status != HAL_OK) {
+    if (status != AS5600_ERROR_SUCCESS) {
         return status;
     }
 
     wait(100);
     status = get_16_register(RAW_ANGLE, &data.raw_angle);
-    if (status != HAL_OK) {
+    if (status != AS5600_ERROR_SUCCESS) {
         char buffer[90];
         sprintf(buffer, "AS5600 calibrate 1 step ERROR hal_status: %d", status);
         set_text(this->calb_mes, buffer);
@@ -94,7 +83,7 @@ as5600_error_t As5600Periphery::calibrate()
     status = write_8_to_reg(BURN, BURN_ANLGE_VAL);
     wait(100);
 
-    if (status != HAL_OK) {
+    if (status != AS5600_ERROR_SUCCESS) {
         char buffer[90];
         sprintf(buffer, "AS5600 calibrate 2 step ERROR hal_status: %d", status);
         set_text(this->calb_mes, buffer);
