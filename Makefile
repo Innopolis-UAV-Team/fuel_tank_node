@@ -3,16 +3,27 @@
 
 BUILD_DIR:=build
 BUILD_OBJ_DIR:=build/obj
+IS_SUBMODULE_INITIALIZED := $(shell find Libs/libparams -mindepth 1 | wc -l)
 
 # Dronecan:
-dronecan: clean autogenerate_git_related_headers
+dronecan: check_submodules clean autogenerate_git_related_headers
 	mkdir -p ${BUILD_OBJ_DIR}
 	cd ${BUILD_OBJ_DIR} && cmake -DUSE_DRONECAN=1 ../.. && make
-sitl_dronecan: clean autogenerate_git_related_headers
+dronecan_debug: check_submodules clean autogenerate_git_related_headers
+	mkdir -p ${BUILD_OBJ_DIR}
+	cd ${BUILD_OBJ_DIR} && cmake -DUSE_DRONECAN=1 -DCMAKE_BUILD_TYPE=Debug ../.. && make
+sitl_dronecan: check_submodules clean autogenerate_git_related_headers
 	mkdir -p ${BUILD_OBJ_DIR}
 	cd ${BUILD_OBJ_DIR} && cmake -DUSE_DRONECAN=1 -DUSE_PLATFORM_UBUNTU=1 ../.. && make
 
 # Common:
+check_submodules:
+	@if [ "$(IS_SUBMODULE_INITIALIZED)" -eq 0 ]; then \
+		echo "Error: submodules are empty. Please type: 'git submodule update --init --recursive'"; \
+		exit 1; \
+	else \
+		echo "Submodules exist. It's fine."; \
+	fi
 upload:
 	./scripts/tools/stm32/flash.sh ${BUILD_OBJ_DIR}/example.bin
 run:
