@@ -1,41 +1,29 @@
 /*
-* Copyright (C) 2023 Anastasiia Stepanova <asiiapine@gmail.com>
+* Copyright (C) 2024 Anastasiia Stepanova <asiiapine@gmail.com>
 * Distributed under the terms of the GPL v3 license, available in the file LICENSE.
 */
 
 #include "periphery/as5600/as5600.hpp"
-#include "main.h"
-#include <math.h>
-#include "logging.h"
 
 using namespace std;
 
 as5600_error_t As5600Periphery::init()
 {
-    // TODO: check is it nedded to change the big endian bytes from the as5600 to little endian data format
-
-    set_source(this->init_mes, "as5600_init");
-    set_source(this->proc_mes, "as5600_proc");
-    set_source(this->calb_mes, "as5600_calb");
+    logger.init("as5600");
 
     as5600_error_t status = AS5600_SUCCESS;
 
     status = get_magnet_status(&data.mag_status);
+    char buffer[90];
+
     if (status != AS5600_SUCCESS) {
-        char buffer[90];
-        sprintf(buffer, "ERROR AS5600 get_magnet(AS5600_STAT): %d", status);
-        set_text(this->init_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "get_magnet(STAT): %d", status);
+        logger.log_error(buffer);
         return status;
     } else {
-        char buffer[90];
-        sprintf(buffer, "AS5600 get_magnet STATE_reg): %d", data.mag_status);
-        set_text(this->init_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "get_magnet(val): %d", data.mag_status);
+        logger.log_debug(buffer);
     }
-
     return status;
 }
 
@@ -43,61 +31,51 @@ as5600_error_t As5600Periphery::calibrate()
 {
 
     as5600_error_t status = get_angle_data(RAW_ANGLE, &data.raw_angle);
+    char buffer[90];
+
     if (status != AS5600_SUCCESS) {
-        char buffer[90];
-        sprintf(buffer, "AS5600 calibrate status: %d", status);
-        set_text(this->calb_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&calb_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "calibrate angle: %d", status);
+        logger.log_error(buffer);
         return AS5600_I2C_ERROR;
     } else {
-        char buffer[90];
-        sprintf(buffer, "AS5600 calibrate status: %d RAW_ANGLE value: %d", status, data.raw_angle);
-        set_text(this->calb_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&calb_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "calibrate angle: %d %d", status, data.raw_angle);
+        logger.log_debug(buffer);
     }
 
-    i2c_error_t i2c_status = write_16_to_reg(I2C_AS5600, ZPOS, data.raw_angle, AS5600_12_BIT_MASK);
-    if (i2c_status != I2C_SUCCESS) {
-        return AS5600_I2C_ERROR;
+    status = set_zero_position(data.raw_angle);
+    // i2c_error_t i2c_status = write_16_to_reg(I2C_AS5600, ZPOS, data.raw_angle, AS5600_12_BIT_MASK);
+    if (status != AS5600_SUCCESS) {
+        sprintf(buffer, "set_pos: %d", status);
+        logger.log_error(buffer);
+        return status;
     }
 
     wait(100);
-    i2c_status = get_16_register(I2C_AS5600, RAW_ANGLE, &data.raw_angle);
+    i2c_error_t i2c_status = get_16_register(I2C_AS5600, RAW_ANGLE, &data.raw_angle);
     if (i2c_status != I2C_SUCCESS) {
-        char buffer[90];
-        sprintf(buffer, "AS5600 calibrate 1 step ERROR i2c_status: %d", i2c_status);
-        set_text(this->calb_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&calb_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "CALIB 1 ERROR: %d", i2c_status);
+        logger.log_error(buffer);
         return AS5600_I2C_ERROR;
     } else {
-        char buffer[90];
-        sprintf(buffer, "AS5600 calibrate 1 step status: %d RAW_ANGLE value: %d", status, data.raw_angle);
-        set_text(this->calb_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&calb_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "CALIB 1: %d %d", status, data.raw_angle);
+        logger.log_debug(buffer);
     }
 
     wait(100);
 
-    i2c_status = write_8_to_reg(I2C_AS5600, BURN, BURN_ANLGE_VAL);
+    uint8_t const tx_buffer = BURN_ANLGE_VAL;
+    size_t const count = sizeof(uint8_t);
+
+    i2c_status = write_n_consecutive_bytes(I2C_AS5600, BURN, &tx_buffer, count);
     wait(100);
 
     if (i2c_status != 0) {
-        char buffer[90];
-        sprintf(buffer, "AS5600 calibrate 2 step ERROR hal_status: %d", i2c_status);
-        set_text(this->calb_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&calb_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "CALIB 2 ERROR: %d", i2c_status);
+        logger.log_error(buffer);
         return AS5600_I2C_ERROR;
     } else {
-        char buffer[90];
-        sprintf(buffer, "AS5600 calibrate 2 step status (HAL_STAT, RANG_reg): %d%d", status, data.raw_angle);
-        set_text(this->calb_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&calb_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "CALIB 2 (HAL_STAT, RANG_reg): %d%d", status, data.raw_angle);
+        logger.log_debug(buffer);
     }
     return status;
     // TODO: continue
@@ -111,19 +89,23 @@ void wait(uint8_t time_ns)
     }
 }
 
-as5600_error_t As5600Periphery::set_zero_position(uint16_t const a_start_position)
+as5600_error_t As5600Periphery::set_zero_position(uint16_t const val)
 {
     as5600_error_t status = AS5600_SUCCESS;
+    uint16_t const first_byte_mask = 0x00FF;
+    size_t const count = sizeof(uint16_t);
+    uint8_t tx_buffer[2];
 
+    tx_buffer[0] = (uint8_t)((val >> 8) & first_byte_mask);
+    tx_buffer[1] = (uint8_t)(val & first_byte_mask);
+
+    char buffer[90];
     if (status == AS5600_SUCCESS) {
-        i2c_error_t i2c_status = write_16_to_reg(I2C_AS5600, ZPOS, a_start_position, AS5600_12_BIT_MASK);
+        i2c_error_t i2c_status = write_n_consecutive_bytes(I2C_AS5600, ZPOS, tx_buffer, count);
         if (i2c_status != I2C_SUCCESS)
         {
-            char buffer[90];
-            sprintf(buffer, "get_angle_data I2C_STATUS %d", i2c_status);
-            set_text(this->proc_mes, buffer);
-            dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
-            _log_transfer_id++;
+            sprintf(buffer, "WRITE %d", i2c_status);
+            logger.log_error(buffer);
             status = AS5600_I2C_ERROR;
         }
     }
@@ -132,6 +114,7 @@ as5600_error_t As5600Periphery::set_zero_position(uint16_t const a_start_positio
 
 as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData)
 {
+    char buffer[90];
     as5600_error_t status = AS5600_SUCCESS;
 
     if (pData == NULL) {
@@ -141,11 +124,8 @@ as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData)
 
     i2c_error_t i2c_status = get_8_register(I2C_AS5600, STATUS, pData);
     if (i2c_status != I2C_SUCCESS) {
-        char buffer[90];
-        sprintf(buffer, "get_magn_data HAL_STATUS %d", status);
-        set_text(this->proc_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "GET STATUS %d", status);
+        logger.log_error(buffer);
         status = AS5600_I2C_ERROR;
     }
     return status;
@@ -154,6 +134,7 @@ as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData)
 as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pData)
 {
 
+    char buffer[90];
     as5600_error_t status = AS5600_SUCCESS;
 
     if (pData == NULL) {
@@ -163,11 +144,9 @@ as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *c
     i2c_error_t i2c_status = get_16_register(I2C_AS5600, mem_addr, pData);
 
     if (i2c_status != I2C_SUCCESS) {
-        char buffer[90];
-        sprintf(buffer, "get_angle_data ERROR %d", status);
-        set_text(this->proc_mes, buffer);
-        dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
-        _log_transfer_id++;
+        sprintf(buffer, "GET ANGLE I2C %d", i2c_status);
+        logger.log_error(buffer);
+        status = AS5600_I2C_ERROR;
     }
     return status;
 }
