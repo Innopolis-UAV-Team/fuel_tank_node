@@ -39,17 +39,17 @@ void Logger::publish(){
     _transfer_id++;
 }
 
-#ifndef _DEBUG
+#ifdef _DEBUG
 void Logger::log_debug(const char* text) {
-}
-#else
-// if DEBUG_ON
-void Logger::log_debug(const char* text) {
-      char buffer[90];
-    sprintf(buffer,  "INFO: ");
+    char buffer[90];
+    sprintf(buffer,  "DEBUG: ");
     strcat(buffer, text);
     set_text(this->_msg, buffer);
     
     publish();
+}
+#else
+void Logger::log_debug(const char* text) {
+    // Do nothing if _DEBUG is not defined
 }
 #endif
