@@ -15,7 +15,6 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
     
     char buffer[90];
     logger.init("FuelTank");
-    logger.log_debug("Hi");
 
     int hal_status = 0;
 
@@ -27,7 +26,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
 
     hal_status = isDeviceReady(I2C_AS5600, 100);
     if (hal_status != 0){
-        sprintf(buffer, "I2C_isDeviceReady %d", hal_status);
+        sprintf(buffer, "I2C_isDevReady %d", hal_status);
         logger.log_error(buffer);
     }
 
@@ -39,12 +38,13 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
     _tank_info.fuel_tank_id = tank_id;
     _tank_info.reserved = is_reserved;
     
-    hal_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &transfer_id);
+    // hal_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &transfer_id);
+    // _transfer_id++;
 
-    if (hal_status != 0){
-        logger.log_error("PUB");
-        return hal_status;
-     }  
+    // if (hal_status != 0){
+    //     logger.log_error("PUB");
+    //     return hal_status;
+    //  }  
 
     as5600_error_t as5600_status = this->as5600.init();
 
@@ -57,7 +57,6 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
         logger.log_debug(buffer);
     }
     logger.log_info("INIT COMP");
-    _transfer_id++;
     return 0;
 }
 
@@ -75,7 +74,7 @@ int8_t VtolFuelTank::process() {
     uint16_t zero_val = 0;
     uint8_t status = as5600.get_angle_data(ZPOS, &zero_val);
     if (status != 0){
-        sprintf(buffer, "GETZERO: %d", status);
+        sprintf(buffer, "GET_ZERO: %d", status);
         logger.log_error(buffer);
         return status;
     } 
@@ -115,20 +114,19 @@ int8_t VtolFuelTank::update_data(){
         return as5600_stat;
     }
 
+    this->_tank_info.available_fuel_volume_percent = as5600.data.raw_angle;
     this->_tank_info.available_fuel_volume_cm3 = as5600.data.angle;
-    this->_tank_info.available_fuel_volume_percent = as5600.data.start_angle;
     this->_tank_info.fuel_consumption_rate_cm3pm += 0.1;
     return 0;
 }
 
-int8_t VtolFuelTank::set_zero(){
+int8_t VtolFuelTank::set_zero(uint16_t val){
     uint32_t crnt_time_ms = HAL_GetTick();
 
     // TODO: change to 1 Hz
     if (crnt_time_ms < _last_set_time_ms + 200) {
         return 0;
     }
-    val +=100;
     _last_set_time_ms = HAL_GetTick();
     return as5600.set_zero_position(val);
 }

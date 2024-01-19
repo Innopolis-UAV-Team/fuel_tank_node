@@ -21,7 +21,7 @@ public:
     int8_t process();
     int8_t update_data();
     int8_t calibrate();
-    int8_t set_zero();
+    int8_t set_zero(uint16_t val);
 
 private:
     uint32_t _last_publish_time_ms{0};
@@ -33,7 +33,6 @@ private:
     Logger logger{};
     As5600Periphery as5600{};
     FuelTankStatus_t _tank_info{};
-    uint16_t val = 0;
 };
 
 
