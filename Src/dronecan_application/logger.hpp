@@ -3,7 +3,6 @@
 * Distributed under the terms of the GPL v3 license, available in the file LICENSE.
 */
 
-
 #ifndef SRC_LOGGER_HPP_
 #define SRC_LOGGER_HPP_
 

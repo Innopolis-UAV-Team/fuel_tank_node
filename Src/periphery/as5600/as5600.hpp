@@ -3,8 +3,8 @@
 * Distributed under the terms of the GPL v3 license, available in the file LICENSE.
 */
 
-#ifndef SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
-#define SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
+#ifndef PLATFORM_SPECIFIC_AS5600_AS5600_HPP_
+#define PLATFORM_SPECIFIC_AS5600_AS5600_HPP_
 
 #include <stdint.h>
 #include <string> 
@@ -57,7 +57,6 @@ typedef enum as5600_error_e
 
 struct as5600_data
 {
-    /* data */
     uint16_t raw_angle;
     uint16_t max_value;
     uint16_t start_angle;
@@ -84,13 +83,11 @@ public:
     as5600_error_t get_angle_data(as5600_addr mem_addr, uint16_t *const pData);
     as5600_error_t get_magnet_status(uint8_t *const pData);
     as5600_error_t set_zero_position(uint16_t const a_start_position);
-    // as5600_error_t write_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
 
 private:
     void calc_min_angle_steps();
     Logger logger{};
     uint8_t _log_transfer_id = 0;
-
 };
 
-#endif // SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
+#endif // PLATFORM_SPECIFIC_AS5600_AS5600_HPP_

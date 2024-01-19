@@ -16,6 +16,27 @@ as5600_error_t As5600Periphery::init() {
     return AS5600_SUCCESS;
 }
 
+as5600_error_t As5600Periphery::calibrate(){
+    return AS5600_SUCCESS;
+}
+void wait(uint8_t time_ns)
+
+{
+    uint32_t start_time_ms = HAL_GetTick();
+    while (start_time_ms > HAL_GetTick() - time_ns) {
+        continue;
+    }
+}
+
+as5600_error_t As5600Periphery::set_zero_position(uint16_t const a_start_position){
+    return AS5600_SUCCESS;
+}
+
+as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData){
+    // STATUS register: 00|MD|ML|MH|000
+    *pData = 000100;
+    return AS5600_SUCCESS;
+}
 
 as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pData){
     
@@ -51,59 +72,3 @@ as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *c
     }
     return AS5600_SUCCESS;
 }
-
-as5600_error_t get_magnet_status(uint8_t *const pData){
-    // STATUS register: 00|MD|ML|MH|000
-    *pData = 000100;
-    return AS5600_SUCCESS;
-}
-// void PwmPeriphery::set_duration(const PwmPin pwm_pin, uint32_t duration_us) {
-//     switch (pwm_pin) {
-//         case PwmPin::PWM_1:
-//             TIM4->CCR2 = duration_us;
-//             break;
-
-//         case PwmPin::PWM_2:
-//             TIM4->CCR1 = duration_us;
-//             break;
-
-//         case PwmPin::PWM_3:
-//             TIM3->CCR1 = duration_us;
-//             break;
-
-//         case PwmPin::PWM_4:
-//             TIM3->CCR2 = duration_us;
-//             break;
-
-//         default:
-//             break;
-//     }
-// }
-
-// uint32_t PwmPeriphery::get_duration(PwmPin pwm_pin) {
-//     uint32_t pwm_duration;
-
-//     switch (pwm_pin) {
-//         case PwmPin::PWM_1:
-//             pwm_duration = TIM4->CCR2;
-//             break;
-
-//         case PwmPin::PWM_2:
-//             pwm_duration = TIM4->CCR1;
-//             break;
-
-//         case PwmPin::PWM_3:
-//             pwm_duration = TIM3->CCR1;
-//             break;
-
-//         case PwmPin::PWM_4:
-//             pwm_duration = TIM3->CCR2;
-//             break;
-
-//         default:
-//             pwm_duration = 0;
-//             break;
-//     }
-
-//     return pwm_duration;
-// }

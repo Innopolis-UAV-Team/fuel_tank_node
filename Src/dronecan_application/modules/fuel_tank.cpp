@@ -130,6 +130,5 @@ int8_t VtolFuelTank::set_zero(){
     }
     val +=100;
     _last_set_time_ms = HAL_GetTick();
-    wait(100);
     return as5600.set_zero_position(val);
 }
