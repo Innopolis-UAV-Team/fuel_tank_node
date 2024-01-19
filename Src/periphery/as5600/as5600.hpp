@@ -59,6 +59,10 @@ struct as5600_data
     uint16_t max_value;
     uint16_t start_angle;
     uint8_t mag_status;
+    uint8_t min_angle_deg = 18;
+    // uint32_t min_angle_steps = ceil(4095 * min_angle_deg/359);
+    uint32_t min_angle_steps = 206;
+
 };
 
 void wait(uint8_t time_ns);
@@ -76,12 +80,13 @@ public:
     as5600_error_t calibrate();
     
     as5600_error_t get_angle_data(as5600_addr mem_addr, uint16_t *const pData);
-    as5600_error_t get_magnet_status(uint8_t *const stat);
+    as5600_error_t get_magnet_status(uint8_t *const pData);
     // int8_t get_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
     as5600_error_t set_zero_position(uint16_t const a_start_position);
 
     as5600_error_t write_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
 private:
+    void calc_min_angle_steps();
     // as5600_error_t get_8_register(as5600_addr mem_addr, uint8_t  *const pData);
     // as5600_error_t get_16_register(as5600_addr mem_addr, uint16_t  *const pData);
     // as5600_error_t write_16_to_reg(as5600_addr mem_addr, uint16_t data);

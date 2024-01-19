@@ -1,8 +1,6 @@
 /*
- * Copyright (C) 2018-2023 Dmitry Ponomarev <ponomarevda96@gmail.com>
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ * Copyright (C) 2024 Anastasiia Stepanova <asiiapine@gmail.com>
+ * Distributed under the terms of the GPL v3 license
  */
 
 #include "periphery/hal_i2c/hal_i2c.hpp"
@@ -63,8 +61,7 @@ int8_t isDeviceReady(uint8_t id, uint8_t n_trials){
 i2c_error_t get_16_register(uint8_t id, uint8_t mem_addr, uint16_t *const pData)
 {
 
-    uint8_t tx_buf[I2C_MEMADD_SIZE_8BIT] = {0};
-    tx_buf[0] = mem_addr;
+    uint8_t tx_buf[I2C_MEMADD_SIZE_8BIT] = {mem_addr};
     uint8_t data[2] = {0x00};
 
     int8_t hal_status = i2cTransmit(id, tx_buf, 1);
