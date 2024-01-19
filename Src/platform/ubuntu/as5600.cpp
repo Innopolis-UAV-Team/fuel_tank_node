@@ -11,47 +11,52 @@
 using namespace std;
 
 
-int8_t As5600Periphery::init() {
+as5600_error_t As5600Periphery::init() {
     this->data.raw_angle = 0;
-    return 0;
+    return AS5600_SUCCESS;
 }
 
 
-int8_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pData){
+as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pData){
     
     switch (mem_addr)
     {
     case RAW_ANGLE:
         this->data.raw_angle+= 0.1;
         *pData = this->data.raw_angle;
-        printf("AS5600:\tRAW_ANGLE_READING\t%d\n", pData);
+        printf("AS5600:\tRAW_ANGLE_READING\t%d\n", *pData);
         break;
 
     case ZPOS:
-        printf("AS5600:\tZPOS_READING\t\t%d\n", pData);
+        printf("AS5600:\tZPOS_READING\t\t%d\n", *pData);
         break;
     case MPOS:
-        printf("AS5600:\tMPOS_READING\t\t%d\n", pData);
+        printf("AS5600:\tMPOS_READING\t\t%d\n", *pData);
         break;
     case CONF:
-        printf("AS5600:\tCONF_READING\t\t%d\n", pData);
+        printf("AS5600:\tCONF_READING\t\t%d\n", *pData);
         break;
     case STATUS:
-        printf("AS5600:\tSTATE_READING\t\t%d\n", pData);
+        printf("AS5600:\tSTATE_READING\t\t%d\n", *pData);
         break;
     case ANGLE:
-        printf("AS5600:\tANGLE_READING\t\t%d\n", pData);
+        printf("AS5600:\tANGLE_READING\t\t%d\n", *pData);
         break;
     case BURN:
-        printf("AS5600:\tBURN_ANGLE_READING\t%d\n", pData);
+        printf("AS5600:\tBURN_ANGLE_READING\t%d\n", *pData);
         break;
     default:
-        printf("AS5600:\tUNKNOW_REGISTER_READING\t%d\n", pData);
-        return 1;
+        printf("AS5600:\tUNKNOW_REGISTER_READING\t%d\n", *pData);
+        return AS5600_BAD_PARAMETER;
     }
-    return 0;
+    return AS5600_SUCCESS;
 }
 
+as5600_error_t get_magnet_status(uint8_t *const pData){
+    // STATUS register: 00|MD|ML|MH|000
+    *pData = 000100;
+    return AS5600_SUCCESS;
+}
 // void PwmPeriphery::set_duration(const PwmPin pwm_pin, uint32_t duration_us) {
 //     switch (pwm_pin) {
 //         case PwmPin::PWM_1:

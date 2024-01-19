@@ -1,5 +1,7 @@
-// Copyright (C) 2023 Anastasiia Stepanova <asiiapine@gmail.com>
-// Distributed under the terms of the GPL v3 license, available in the file LICENSE.
+/*
+* Copyright (C) 2023 Anastasiia Stepanova <asiiapine@gmail.com>
+* Distributed under the terms of the GPL v3 license, available in the file LICENSE.
+*/
 
 #include "periphery/as5600/as5600.hpp"
 #include "main.h"
@@ -112,10 +114,6 @@ void wait(uint8_t time_ns)
 as5600_error_t As5600Periphery::set_zero_position(uint16_t const a_start_position)
 {
     as5600_error_t status = AS5600_SUCCESS;
-    if (a_start_position == NULL) {
-        status = AS5600_BAD_PARAMETER;
-        return status;
-    }
 
     if (status == AS5600_SUCCESS) {
         i2c_error_t i2c_status = write_16_to_reg(I2C_AS5600, ZPOS, a_start_position, AS5600_12_BIT_MASK);

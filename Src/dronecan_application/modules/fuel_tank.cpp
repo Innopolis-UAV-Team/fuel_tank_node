@@ -16,10 +16,10 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
     set_source(this->proc_mes, "fuel_proc");
     
 
-    HAL_StatusTypeDef hal_status = HAL_OK;
+    int hal_status = 0;
     // HAL_StatusTypeDef hal_status = HAL_I2C_Init(&hi2c1);
 
-    if (hal_status != HAL_OK){
+    if (hal_status != 0){
         char buffer[90];
         sprintf(buffer, "I2C_init_status %d", hal_status);
         set_text(this->init_mes, buffer);
@@ -28,8 +28,8 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
         return hal_status;
     }
 
-    hal_status = (HAL_StatusTypeDef)isDeviceReady(I2C_AS5600, 100);
-    if (hal_status != HAL_OK){
+    hal_status = isDeviceReady(I2C_AS5600, 100);
+    if (hal_status != 0){
         char buffer[90];
         sprintf(buffer, "I2C_isDeviceReady_status %d", hal_status);
         set_text(this->init_mes, buffer);
@@ -45,13 +45,13 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
     _tank_info.fuel_tank_id = tank_id;
     _tank_info.reserved = is_reserved;
     
-    const int8_t can_publish_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &transfer_id);
+    hal_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &transfer_id);
 
-    if (can_publish_status != 0){
+    if (hal_status != 0){
         set_text(this->init_mes, "PUB_ERROR");
         dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
         _log_transfer_id++;
-        return HAL_ERROR;
+        return hal_status;
      }  
 
     as5600_error_t as5600_status = this->as5600.init();
@@ -62,7 +62,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint16_t is_reserved) {
         set_text(this->init_mes, buffer);
         dronecan_protocol_debug_log_message_publish(&init_mes, &_log_transfer_id);
         _log_transfer_id++;
-        return HAL_ERROR;
+        return 1;
     } else {
         char buffer[90];
         sprintf(buffer, "AS5600_INIT: %d", this->as5600.data.mag_status);
@@ -83,7 +83,7 @@ int8_t VtolFuelTank::process() {
 
     _last_publish_time_ms = HAL_GetTick();
 
-    uint8_t hal_status = HAL_OK;
+    uint8_t hal_status = 0;
     
     // TODO: fix the read_16_reg()
     hal_status = update_data();
@@ -95,20 +95,19 @@ int8_t VtolFuelTank::process() {
 
         dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
         _log_transfer_id++;
-        return HAL_ERROR;
+        return hal_status;
     }
 
-    const int8_t can_publish_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &_transfer_id);
+    hal_status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info, &_transfer_id);
     _transfer_id++;
 
-    if (can_publish_status != 0){
+    if (hal_status != 0){
         char buffer[90];
-        sprintf(buffer, "CAN publish error: %d", can_publish_status);
+        sprintf(buffer, "CAN publish error: %d", hal_status);
         set_text(this->proc_mes, buffer);
 
         dronecan_protocol_debug_log_message_publish(&proc_mes, &_log_transfer_id);
         _log_transfer_id++;
-        return HAL_ERROR;
     } 
     return hal_status;
 }

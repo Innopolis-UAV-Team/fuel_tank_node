@@ -1,17 +1,14 @@
 /*
- * Copyright (C) 2018-2023 Dmitry Ponomarev <ponomarevda96@gmail.com>
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
- * Original file: https://github.com/ZilantRobotics/libperiph/blob/6f5fa8331cd32ba9d4f1363946f0ff0f611f80f9/platform_specific/hal_i2c/hal_i2c.h
- */
+* Copyright (C) 2023 Anastasiia Stepanova <asiiapine@gmail.com>
+* Distributed under the terms of the GPL v3 license, available in the file LICENSE.
+*/
+
  
 #ifndef SRC_APPLICATION_PERIPHERY_HAL_I2C_
 #define SRC_APPLICATION_PERIPHERY_HAL_I2C_
 
 #include "main.h"
-
+#include <cstdint>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +33,6 @@ i2c_error_t get_16_register(uint8_t id, uint8_t mem_addr, uint16_t *const pData)
 
 i2c_error_t write_8_to_reg(uint8_t id, uint8_t mem_addr, uint8_t data);
 i2c_error_t write_16_to_reg(uint8_t id, uint8_t mem_addr, uint16_t data, uint16_t bit_mask);
-
 
 #ifdef __cplusplus
 }
