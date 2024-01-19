@@ -3,10 +3,13 @@
  * Distributed under the terms of the GPL v3 license, available in the file
  */
 
-#ifndef SRC_APPLICATION_PERIPHERY_HAL_I2C_
-#define SRC_APPLICATION_PERIPHERY_HAL_I2C_
+#ifndef PLATFORM_SPECIFIC_HAL_I2C_HPP
+#define PLATFORM_SPECIFIC_HAL_I2C_HPP
 
 #include <cstdint>
+// #include <stdint.h>
+#include <cstddef>
+
 
 #include "main.h"
 
@@ -39,4 +42,4 @@ i2c_error_t write_n_consecutive_bytes(uint8_t id, uint8_t reg,
 }
 #endif
 
-#endif  // SRC_APPLICATION_PERIPHERY_HAL_I2C_
+#endif  // PLATFORM_SPECIFIC_HAL_I2C_HPP
