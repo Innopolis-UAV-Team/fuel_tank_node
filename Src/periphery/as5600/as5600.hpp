@@ -1,5 +1,7 @@
-// Copyright (C) 2023 Dmitry Ponomarev <ponomarevda96@gmail.com>
-// Distributed under the terms of the GPL v3 license, available in the file LICENSE.
+/*
+* Copyright (C) 2023 Anastasiia Stepanova <asiiapine@gmail.com>
+* Distributed under the terms of the GPL v3 license, available in the file LICENSE.
+*/
 
 #ifndef SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
 #define SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_
@@ -8,6 +10,9 @@
 #include <string> 
 #include "uavcan/protocol/debug/LogMessage.h"
 #include "periphery/hal_i2c/hal_i2c.hpp"
+#include "logger.hpp"
+#include "main.h"
+#include <math.h>
 
 /**
  * @note AS5600 registers
@@ -43,12 +48,10 @@ typedef enum as5600_error_e
         AS5600_BAD_PARAMETER,
         AS5600_RUNTIME_ERROR,
         AS5600_I2C_ERROR,
-        AS5600_NOT_INITIALIZED,
-        AS5600_MAGNET_NOT_DETECTED,
-        AS5600_MAX_WRITE_CYCLES_REACHED,
-        AS5600_MIN_ANGLE_TOO_SMALL,
-        AS5600_GENERAL_ERROR,
-        AS5600_COUNT_ERROR
+        // AS5600_NOT_INITIALIZED,
+        // AS5600_MAGNET_NOT_DETECTED,
+        // AS5600_MAX_WRITE_CYCLES_REACHED,
+        // AS5600_MIN_ANGLE_TOO_SMALL,
 } as5600_error_t;
 
 
@@ -58,11 +61,11 @@ struct as5600_data
     uint16_t raw_angle;
     uint16_t max_value;
     uint16_t start_angle;
+    float angle;
     uint8_t mag_status;
     uint8_t min_angle_deg = 18;
     // uint32_t min_angle_steps = ceil(4095 * min_angle_deg/359);
     uint32_t min_angle_steps = 206;
-
 };
 
 void wait(uint8_t time_ns);
@@ -71,8 +74,7 @@ class As5600Periphery
 {
 public:
     // TODO: add sensor parameters
-    as5600_data data = {.raw_angle = 0, .max_value = 4, .start_angle=0, .mag_status=0};
-    // as5600_data data = {.raw_angle = 0, .max_value = 4095, .start_angle=0,};
+    as5600_data data = {.raw_angle = 0, .max_value = 4, .start_angle=0, .angle=400, .mag_status=0};
     
     as5600_error_t init();
     int8_t reset();
@@ -81,23 +83,14 @@ public:
     
     as5600_error_t get_angle_data(as5600_addr mem_addr, uint16_t *const pData);
     as5600_error_t get_magnet_status(uint8_t *const pData);
-    // int8_t get_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
     as5600_error_t set_zero_position(uint16_t const a_start_position);
+    // as5600_error_t write_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
 
-    as5600_error_t write_data(as5600_addr mem_addr, uint16_t pData, int n_bytes);
 private:
     void calc_min_angle_steps();
-    // as5600_error_t get_8_register(as5600_addr mem_addr, uint8_t  *const pData);
-    // as5600_error_t get_16_register(as5600_addr mem_addr, uint16_t  *const pData);
-    // as5600_error_t write_16_to_reg(as5600_addr mem_addr, uint16_t data);
-    // as5600_error_t write_8_to_reg(as5600_addr mem_addr, uint8_t data);
-
-
+    Logger logger{};
     uint8_t _log_transfer_id = 0;
 
-    DebugLogMessage_t init_mes{};    
-    DebugLogMessage_t proc_mes{};    
-    DebugLogMessage_t calb_mes{};    
 };
 
 #endif // SRC_APPLICATION_PERIPHERY_AS5600_AS5600_HPP_

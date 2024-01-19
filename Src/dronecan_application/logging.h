@@ -1,3 +1,7 @@
+#ifndef SRC_LOGGING_H_
+#define SRC_LOGGING_H_
+
+
 #include "uavcan/protocol/debug/LogMessage.h"
 #include <stdarg.h>
 
@@ -23,3 +27,4 @@ static inline bool set_text(DebugLogMessage_t &msg, const char *str) {
     msg.text_size = strlen(str);
     return true;
 }
+#endif // SRC_LOGGING_H_

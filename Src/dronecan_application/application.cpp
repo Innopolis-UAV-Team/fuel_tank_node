@@ -21,17 +21,17 @@ void application_entry_point() {
     uavcanInitApplication(node_id);
     uavcanSetNodeName(node_name);
 
+    int8_t res = 0;
     VtolFuelTank fuel_tank;
-    fuel_tank.init(0, 0);    
-
+    res = fuel_tank.init(0, 0);    
     while(true) {
-        uint8_t status = fuel_tank.process();
-        if (status != 0){
+        if (res != 0){
             LedPeriphery::toggle(LedColor::RED_COLOR);
         }
         else{
         LedPeriphery::toggle(LedColor::BLUE_COLOR);
         }
+        res = fuel_tank.process();
         uavcanSpinOnce();
     }
 }
