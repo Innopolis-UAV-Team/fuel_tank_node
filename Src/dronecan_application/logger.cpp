@@ -11,25 +11,17 @@ int8_t Logger::init(const char* source = ""){
 
 void Logger::log_info(const char* text) {
     char buffer[90];
-    sprintf(buffer,  "LOG_INFO: ");
-    strcat(buffer, text);
-    set_text(this->_msg, buffer);
+    set_text(this->_msg, text);
 
     publish();
 }
 void Logger::log_warn(const char* text) {
-    char buffer[90];
-    sprintf(buffer,  "WARN: ");
-    strcat(buffer, text);
-    set_text(this->_msg, buffer);
+    set_text(this->_msg, text);
 
     publish();
 }
 void Logger::log_error(const char* text) {
-    char buffer[90];
-    sprintf(buffer,  "ERROR: ");
-    strcat(buffer, text);
-    set_text(this->_msg, buffer);
+    set_text(this->_msg, text);
 
     publish();
 }
@@ -41,10 +33,7 @@ void Logger::publish(){
 
 #ifdef _DEBUG
 void Logger::log_debug(const char* text) {
-    char buffer[90];
-    sprintf(buffer,  "DEBUG: ");
-    strcat(buffer, text);
-    set_text(this->_msg, buffer);
+    set_text(this->_msg, text);
     
     publish();
 }
