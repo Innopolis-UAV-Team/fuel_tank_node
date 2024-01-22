@@ -130,7 +130,19 @@ i2c_error_t write_n_consecutive_bytes(uint8_t id, uint8_t reg,
   }
   return status;
 }
+i2c_error_t write_16reg(uint8_t id,uint8_t const reg, uint16_t const tx_buffer){
+  uint16_t const first_byte_mask = 0x00FF;
+  size_t const count = sizeof(uint16_t);
+  i2c_error_t success;
+  uint8_t buffer[2];
 
+  buffer[0] = (uint8_t)((tx_buffer >> 8) & first_byte_mask);
+  buffer[1] = (uint8_t)(tx_buffer & first_byte_mask);
+
+  success = write_n_consecutive_bytes(id, reg, buffer, count);
+
+  return success;
+}
 #ifdef __cplusplus
 }
 #endif

@@ -23,7 +23,7 @@ void application_entry_point() {
 
     int8_t res = 0;
     VtolFuelTank fuel_tank;
-    res = fuel_tank.init(0, 0);    
+    res = fuel_tank.init(0, 0, 180, 5);    
     while(true) {
         if (res != 0){
             LedPeriphery::toggle(LedColor::RED_COLOR);
