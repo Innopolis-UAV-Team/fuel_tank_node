@@ -9,6 +9,9 @@
 #include "periphery/led/led.hpp"
 #include "modules/fuel_tank.hpp"
 
+#ifdef __IWDG_H__
+extern IWDG_HandleTypeDef hiwdg;
+#endif
 
 void application_entry_point() {
     paramsInit(static_cast<uint8_t>(IntParamsIndexes::INTEGER_PARAMS_AMOUNT), NUM_OF_STR_PARAMS);
@@ -20,10 +23,11 @@ void application_entry_point() {
     LedPeriphery::reset();
     uavcanInitApplication(node_id);
     uavcanSetNodeName(node_name);
-
+    // full - 173
+    // empty - 235
     int8_t res = 0;
     VtolFuelTank fuel_tank;
-    res = fuel_tank.init(0, 0, 180, 5);    
+    res = fuel_tank.init(0, 173, 235, 5);    
     while(true) {
         if (res != 0){
             LedPeriphery::toggle(LedColor::RED_COLOR);
@@ -33,5 +37,10 @@ void application_entry_point() {
         }
         res = fuel_tank.process();
         uavcanSpinOnce();
+
+        #ifdef __IWDG_H__
+                HAL_IWDG_Refresh(&hiwdg);
+
+        #endif
     }
 }

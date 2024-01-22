@@ -18,7 +18,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t min_angle, uint32_t max_angl
 
   int hal_status = 0;
   volume = volume_cm3;
-  
+
   if (hal_status != 0) {
     sprintf(buffer, "I2C %d", hal_status);
     _logger.log_error(buffer);
@@ -112,10 +112,12 @@ int8_t VtolFuelTank::update_data() {
   }
 
   _tank_info.available_fuel_volume_percent =
-      (_as5600.data.angle - min_value)*100 / max_value;
+      -(_as5600.data.angle - max_value)*100 / (max_value - min_value); // counter clock-wise
+      // (_as5600.data.angle - min_value)*100 / (max_value - min_value); // clock-wise
 
   _tank_info.available_fuel_volume_cm3 =
       (_tank_info.available_fuel_volume_percent * volume)/100.0f;
+
 
   _tank_info.fuel_consumption_rate_cm3pm += _as5600.data.angle - min_value;
 
