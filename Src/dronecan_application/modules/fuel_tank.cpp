@@ -40,16 +40,18 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_e
   _tank_info.reserved = is_reserved;
 
 
-  empt_tank_angle = angle_empty;
-  full_tank_angle = angle_full;
-
-  if (angle_full < angle_empty){
+  if (angle_full == angle_empty){
+    sprintf(buffer, " PARAM_FUEL_TANK_EMPTY == PARAM_FUEL_TANK_EMPTY");
+    _logger.log_error(buffer);
+    return 1;
+  } else if (angle_full < angle_empty){
     min_value = angle_full;
     max_value = angle_empty;
   } else {
     min_value = angle_empty;
     max_value = angle_full;
   }
+
   as5600_error_t as5600_status = this->_as5600.init(min_value, max_value);
 
   if (as5600_status != 0) {
@@ -103,28 +105,24 @@ int8_t VtolFuelTank::process() {
 }
 
 int8_t VtolFuelTank::update_data() {
-  uint32_t crnt_time_ms = HAL_GetTick();
-
-  // TODO: change to 0.2 Hz
-  if (crnt_time_ms < _last_update_time_ms + 200) {
-    return 0;
-  }
-  _last_update_time_ms = HAL_GetTick();
-
 
   as5600_error_t as5600_stat = _as5600.get_angle_data(RAW_ANGLE, &_as5600.data.raw_angle);
   uint16_t angle = AS5600_12_BIT_MASK & _as5600.data.raw_angle;
-  _as5600.data.angle = uint16_t(((float)angle) / 4095.0f * 360.0f);
+  _as5600.data.angle = ((float)angle) / 4095.0f * 360.0f;
 
   if (as5600_stat != AS5600_SUCCESS) {
     return as5600_stat;
   }
 
-  _tank_info.available_fuel_volume_percent =
-      (_as5600.data.angle - min_value)*100 / (max_value - min_value);
+  if (min_value == max_value){
+    return 1;
+  }
+
+  _tank_info.available_fuel_volume_percent = 
+      (_as5600.data.angle - min_value) * 100 / (max_value - min_value);
   _tank_info.available_fuel_volume_cm3 =
-      (_tank_info.available_fuel_volume_percent * volume)/100.0f;
-  _tank_info.fuel_consumption_rate_cm3pm += _as5600.data.angle - min_value;
+      (_tank_info.available_fuel_volume_percent * volume) / 100.0f;
+  _tank_info.fuel_consumption_rate_cm3pm = _as5600.data.angle - min_value;
 
   return 0;
 }

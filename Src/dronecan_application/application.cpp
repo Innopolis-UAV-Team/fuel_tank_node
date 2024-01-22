@@ -17,17 +17,24 @@ void application_entry_point() {
     paramsInit(static_cast<uint8_t>(IntParamsIndexes::INTEGER_PARAMS_AMOUNT), NUM_OF_STR_PARAMS);
     paramsLoadFromFlash();
 
+    // auto node_name = "arl.fuel_tank";
+    // auto node_name_param_idx = static_cast<ParamIndex_t>(IntParamsIndexes::INTEGER_PARAMS_AMOUNT);
+    // uavcanSetNodeName(node_name);
+    // paramsSetStringValue(node_name_param_idx, 14, (const uint8_t*)node_name);
+
     auto node_id = paramsGetIntegerValue(PARAM_UAVCAN_NODE_ID);
     auto node_name = (const char*)paramsGetStringValue(static_cast<uint8_t>(IntParamsIndexes::INTEGER_PARAMS_AMOUNT));
 
-    LedPeriphery::reset();
     uavcanInitApplication(node_id);
-    uavcanSetNodeName(node_name);
-    // full - 173
-    // empty - 235
+    uavcanSetNodeName("arl.fuel_tank");
+    // uavcanSetNodeName(node_name);
+
+    LedPeriphery::reset();
+
     int8_t res = 0;
     VtolFuelTank fuel_tank;
-    res = fuel_tank.init(0, 173, 235, 5);    
+    res = fuel_tank.init(0, paramsGetIntegerValue(PARAM_FUEL_TANK_FULL) , paramsGetIntegerValue(PARAM_FUEL_TANK_EMPTY), 5);    
+    
     while(true) {
         if (res != 0){
             LedPeriphery::toggle(LedColor::RED_COLOR);
