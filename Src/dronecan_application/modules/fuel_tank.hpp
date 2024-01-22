@@ -17,7 +17,7 @@
 class VtolFuelTank {
 public:
     VtolFuelTank();
-    int8_t init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_empty, uint8_t volume_cm3, bool is_reserved);
+    int8_t init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_empty, uint8_t volume_cm3, bool is_reserved=0);
     int8_t process();
     int8_t update_data();
     int8_t calibrate();
