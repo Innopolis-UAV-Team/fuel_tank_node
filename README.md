@@ -20,4 +20,5 @@ The node should measure with 10 Hz rate and publish data with 1 Hz rate.
 
 The node has the following parameters:
 - fuel.min_value (calibration value means 0% or fuel tank is empty),
-- fuel.max_value (calibration value means 100% or fuel tank is full).
+- fuel.max_value (calibration value means 100% or fuel tank is full),
+- fuel.volume (calibration value means total volume of a fuel tank).

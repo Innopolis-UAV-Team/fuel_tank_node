@@ -38,6 +38,8 @@ i2c_error_t get_16_register(uint8_t id, uint8_t mem_addr,
 i2c_error_t write_n_consecutive_bytes(uint8_t id, uint8_t reg,
                                       uint8_t const *const p_tx,
                                       size_t n_bytes);
+i2c_error_t write_16reg(uint8_t id,uint8_t const reg, uint16_t const tx_buffer);
+
 #ifdef __cplusplus
 }
 #endif

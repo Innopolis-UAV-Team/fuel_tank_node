@@ -38,7 +38,6 @@
 #define I2C_REQUEST_SIZE    1
 #define I2C_RESPONSE_SIZE   2
 
-
 typedef uint8_t as5600_addr;
 
 
@@ -60,7 +59,7 @@ struct as5600_data
     uint16_t raw_angle;
     uint16_t max_value;
     uint16_t start_angle;
-    float angle;
+    uint16_t angle;
     uint8_t mag_status;
     uint8_t min_angle_deg = 18;
     // uint32_t min_angle_steps = ceil(4095 * min_angle_deg/359);
@@ -75,7 +74,7 @@ public:
     // TODO: add sensor parameters
     as5600_data data = {.raw_angle = 0, .max_value = 4, .start_angle=0, .angle=400, .mag_status=0};
     
-    as5600_error_t init();
+    as5600_error_t init(uint32_t min_angle, uint32_t max_angle);
     int8_t reset();
     int8_t update_zpos();
     as5600_error_t calibrate();
@@ -83,10 +82,10 @@ public:
     as5600_error_t get_angle_data(as5600_addr mem_addr, uint16_t *const pData);
     as5600_error_t get_magnet_status(uint8_t *const pData);
     as5600_error_t set_zero_position(uint16_t const a_start_position);
-
+    as5600_error_t set_max_angle(uint16_t const max_angle);
 private:
     void calc_min_angle_steps();
-    Logger logger{};
+    Logger _logger{};
     uint8_t _log_transfer_id = 0;
 };
 
