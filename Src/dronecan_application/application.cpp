@@ -9,7 +9,7 @@
 #include "periphery/led/led.hpp"
 #include "modules/fuel_tank.hpp"
 
-#ifdef __IWDG_H__
+#ifdef HAL_IWDG_MODULE_ENABLED
 extern IWDG_HandleTypeDef hiwdg;
 #endif
 
@@ -38,9 +38,8 @@ void application_entry_point() {
         res = fuel_tank.process();
         uavcanSpinOnce();
 
-        #ifdef __IWDG_H__
-                HAL_IWDG_Refresh(&hiwdg);
-
+        #ifdef HAL_IWDG_MODULE_ENABLED
+            HAL_IWDG_Refresh(&hiwdg);
         #endif
     }
 }
