@@ -7,6 +7,7 @@ The node has the following registers:
 |  3 | fuel.empty_tank_enc_deg | Defines an angle that corresponds to the empty fuel tank [degrees]. |
 |  4 | fuel.full_tank_enc_deg  | Defines an angle that corresponds to the full fuel tank [degrees]. |
 |  5 | fuel.volume             | Defines a volume of the fuel tank [cm3]. |
+|  6 | fuel.tank_id            | Defines an id of the fuel tank. |
 
 > This docs was automatically generated. Do not edit it manually.
 
