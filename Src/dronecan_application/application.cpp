@@ -18,7 +18,7 @@ void application_entry_point() {
     paramsLoadFromFlash();
 
     auto node_id = paramsGetIntegerValue(PARAM_UAVCAN_NODE_ID);
-    auto node_name = (const char*)paramsGetStringValue(static_cast<uint8_t>(IntParamsIndexes::INTEGER_PARAMS_AMOUNT));
+    auto tank_id = paramsGetIntegerValue(PARAM_FUEL_TANK_ID);
 
     uavcanInitApplication(node_id);
     uavcanSetNodeName("arl.fuel_tank");
@@ -27,7 +27,7 @@ void application_entry_point() {
 
     int8_t res = 0;
     VtolFuelTank fuel_tank;
-    res = fuel_tank.init(0, paramsGetIntegerValue(PARAM_FUEL_TANK_FULL) , paramsGetIntegerValue(PARAM_FUEL_TANK_EMPTY), 5);    
+    res = fuel_tank.init(tank_id, paramsGetIntegerValue(PARAM_FUEL_TANK_FULL) , paramsGetIntegerValue(PARAM_FUEL_TANK_EMPTY), 5);    
     while(true) {
         if (res != 0){
             LedPeriphery::toggle(LedColor::RED_COLOR);

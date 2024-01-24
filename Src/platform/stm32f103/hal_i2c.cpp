@@ -106,25 +106,22 @@ i2c_error_t i2cReadByteRegister(uint8_t id, uint8_t mem_addr, uint8_t *const pDa
 i2c_error_t i2cWriteBytesToRegister(uint8_t id, uint8_t reg,
                                       uint8_t const *const p_tx,
                                       size_t n_bytes) {
-  i2c_error_t status = I2C_SUCCESS;
  
   if (NULL == p_tx) {
-    status = I2C_BAD_PARAMETER;
+    return I2C_BAD_PARAMETER;
   }
+  
+  uint8_t buffer[n_bytes + 1];
+  buffer[0] = reg;
 
-  if (status == I2C_SUCCESS) {
-    uint8_t buffer[n_bytes + 1];
-    buffer[0] = reg;
+  memcpy(&buffer[1], p_tx, n_bytes);
 
-    memcpy(&buffer[1], p_tx, n_bytes);
+  int8_t hal_status = i2cTransmit(id, buffer, sizeof(buffer));
 
-    int8_t hal_status = i2cTransmit(id, buffer, sizeof(buffer));
-
-    if (hal_status != 0) {
-      status = I2C_TRANSMIT_ERROR;
-    }
+  if (hal_status != 0) {
+    return I2C_TRANSMIT_ERROR;
   }
-  return status;
+  return I2C_SUCCESS;
 }
 i2c_error_t i2cWriteTwoBytesToRegister(uint8_t id,uint8_t const reg, uint16_t const tx_buffer){
   uint16_t const first_byte_mask = 0x00FF;
