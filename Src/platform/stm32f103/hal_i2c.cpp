@@ -4,8 +4,7 @@
  */
 
 #include "periphery/hal_i2c/hal_i2c.hpp"
-
-#include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +62,7 @@ int8_t isDeviceReady(uint8_t id, uint8_t n_trials) {
  * @param pData Pointer to data buffer
  * @retval i2c_error_t status
  */
-i2c_error_t get_16_register(uint8_t id, uint8_t mem_addr,
+i2c_error_t i2cReadTwoBytesRegister(uint8_t id, uint8_t mem_addr,
                             uint16_t *const pData) {
   uint8_t tx_buf[I2C_MEMADD_SIZE_8BIT] = {mem_addr};
   uint8_t data[2] = {0x00};
@@ -89,7 +88,7 @@ i2c_error_t get_16_register(uint8_t id, uint8_t mem_addr,
  * @param pData Pointer to data buffer
  * @retval i2c_error_t status
  */
-i2c_error_t get_8_register(uint8_t id, uint8_t mem_addr, uint8_t *const pData) {
+i2c_error_t i2cReadByteRegister(uint8_t id, uint8_t mem_addr, uint8_t *const pData) {
   uint8_t tx_buf[I2C_MEMADD_SIZE_8BIT] = {0x00};
   tx_buf[0] = mem_addr;
   int8_t hal_status = i2cTransmit(id, tx_buf, I2C_MEMADD_SIZE_8BIT);
@@ -104,33 +103,30 @@ i2c_error_t get_8_register(uint8_t id, uint8_t mem_addr, uint8_t *const pData) {
   return I2C_SUCCESS;
 }
 
-i2c_error_t write_n_consecutive_bytes(uint8_t id, uint8_t reg,
+i2c_error_t i2cWriteBytesToRegister(uint8_t id, uint8_t reg,
                                       uint8_t const *const p_tx,
                                       size_t n_bytes) {
   i2c_error_t status = I2C_SUCCESS;
-  uint8_t buffer[n_bytes + 1];
-  int8_t hal_status = 0;
-  uint8_t const reg_addr = reg;
-  uint8_t i = 0;
-
+ 
   if (NULL == p_tx) {
     status = I2C_BAD_PARAMETER;
   }
 
   if (status == I2C_SUCCESS) {
-    buffer[0] = reg_addr;
-    for (i = 0; n_bytes > i; ++i) {
-      buffer[i + 1] = p_tx[i];
-    }
-    hal_status = i2cTransmit(id, buffer, sizeof(buffer));
+    uint8_t buffer[n_bytes + 1];
+    buffer[0] = reg;
+
+    memcpy(&buffer[1], p_tx, n_bytes);
+
+    int8_t hal_status = i2cTransmit(id, buffer, sizeof(buffer));
 
     if (hal_status != 0) {
-      status = I2C_SUCCESS;
+      status = I2C_TRANSMIT_ERROR;
     }
   }
   return status;
 }
-i2c_error_t write_16reg(uint8_t id,uint8_t const reg, uint16_t const tx_buffer){
+i2c_error_t i2cWriteTwoBytesToRegister(uint8_t id,uint8_t const reg, uint16_t const tx_buffer){
   uint16_t const first_byte_mask = 0x00FF;
   size_t const count = sizeof(uint16_t);
   i2c_error_t success;
@@ -139,7 +135,7 @@ i2c_error_t write_16reg(uint8_t id,uint8_t const reg, uint16_t const tx_buffer){
   buffer[0] = (uint8_t)((tx_buffer >> 8) & first_byte_mask);
   buffer[1] = (uint8_t)(tx_buffer & first_byte_mask);
 
-  success = write_n_consecutive_bytes(id, reg, buffer, count);
+  success = i2cWriteBytesToRegister(id, reg, buffer, count);
 
   return success;
 }

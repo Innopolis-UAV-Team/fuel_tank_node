@@ -6,8 +6,6 @@ project(example CXX C ASM)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
-else()
-    add_definitions(-D_DEBUG)
 endif()
 
 # Pathes

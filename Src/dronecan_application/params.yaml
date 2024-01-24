@@ -19,7 +19,7 @@ fuel.empty:
   note: Defines an angle that corresponds to the empty fuel tank [degrees].
   enum: PARAM_FUEL_TANK_EMPTY
   flags: mutable
-  default: 235
+  default: 0
   min: 0
   max: 255
 
@@ -28,6 +28,6 @@ fuel.full:
   note: Defines an angle that corresponds to the full fuel tank [degrees].
   enum: PARAM_FUEL_TANK_FULL
   flags: mutable
-  default: 173
+  default: 0
   min: 0
   max: 255

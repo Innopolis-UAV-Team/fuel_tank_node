@@ -108,6 +108,7 @@ int8_t VtolFuelTank::update_data() {
 
   as5600_error_t as5600_stat = _as5600.get_angle_data(RAW_ANGLE, &_as5600.data.raw_angle);
   uint16_t angle = AS5600_12_BIT_MASK & _as5600.data.raw_angle;
+  
   _as5600.data.angle = ((float)angle) / 4095.0f * 360.0f;
 
   if (as5600_stat != AS5600_SUCCESS) {
@@ -115,6 +116,8 @@ int8_t VtolFuelTank::update_data() {
   }
 
   if (min_value == max_value){
+    _logger.log_error("PARAM_FUEL_TANK_EMPTY == PARAM_FUEL_TANK_FULL ANGLE");
+
     return 1;
   }
 
