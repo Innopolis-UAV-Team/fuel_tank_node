@@ -23,13 +23,12 @@ public:
     int8_t calibrate();
     int8_t set_zero(uint16_t val);
 
-    // uint16_t full_tank_angle;
-    // uint16_t empt_tank_angle;
     uint16_t min_value = 0;
     uint16_t max_value = 0;
     uint16_t volume = 1;
 private:
     uint32_t _last_publish_time_ms{0};
+    uint32_t _last_update_time_ms{0};
     uint32_t _last_set_time_ms{0};
     uint8_t _transfer_id = 0;
     uint8_t _log_transfer_id = 0;
@@ -37,6 +36,8 @@ private:
     Logger _logger{};
     As5600Periphery _as5600{};
     FuelTankStatus_t _tank_info{};
+
+    void _apply_angle_boundaries();
 };
 
 
