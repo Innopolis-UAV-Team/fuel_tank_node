@@ -22,13 +22,13 @@ as5600_error_t As5600Periphery::init(uint32_t min_angle, uint32_t max_angle)
 
     if (status != AS5600_SUCCESS) {
         sprintf(buffer, "GET_MAGN: %d", status);
-        _logger.log_error(buffer);
+        _logger.log_debug(buffer);
         return status;
     } else {
         sprintf(buffer, "GET_MAGN(val): %d", data.mag_status);
         _logger.log_debug(buffer);
     }
-    data.max_value = max_angle;
+    data.max_angle = max_angle;
     data.start_angle = min_angle;
     // data.min_angle_steps = calc_min_angle_steps(min_angle);
     return status;
@@ -42,7 +42,7 @@ as5600_error_t As5600Periphery::calibrate()
 
     if (status != AS5600_SUCCESS) {
         sprintf(buffer, "CALIB: %d", status);
-        _logger.log_error(buffer);
+        _logger.log_debug(buffer);
         return AS5600_I2C_ERROR;
     } else {
         sprintf(buffer, "CALIB(RANG): %d %d", status, data.raw_angle);
@@ -53,7 +53,7 @@ as5600_error_t As5600Periphery::calibrate()
     // i2c_error_t i2c_status = write_16_to_reg(I2C_AS5600, ZPOS, data.raw_angle, AS5600_12_BIT_MASK);
     if (status != AS5600_SUCCESS) {
         sprintf(buffer, "SET_POS: %d", status);
-        _logger.log_error(buffer);
+        _logger.log_debug(buffer);
         return status;
     }
 
@@ -78,7 +78,7 @@ as5600_error_t As5600Periphery::calibrate()
 
     if (i2c_status != 0) {
         sprintf(buffer, "CALIB_2: %d", i2c_status);
-        _logger.log_error(buffer);
+        _logger.log_debug(buffer);
         return AS5600_I2C_ERROR;
     } else {
         sprintf(buffer, "CALIB_2(RANG): %d%d", status, data.raw_angle);
@@ -133,7 +133,7 @@ as5600_error_t As5600Periphery::set_zero_position(uint16_t const val)
         if (i2c_status != I2C_SUCCESS)
         {
             sprintf(buffer, "WRITE: %d", i2c_status);
-            _logger.log_error(buffer);
+            _logger.log_debug(buffer);
             status = AS5600_I2C_ERROR;
         }
     }
@@ -153,7 +153,7 @@ as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData)
     i2c_error_t i2c_status = i2cReadByteRegister(I2C_AS5600, STATUS, pData);
     if (i2c_status != I2C_SUCCESS) {
         sprintf(buffer, "GET_STATUS: %d", status);
-        _logger.log_error(buffer);
+        _logger.log_debug(buffer);
         status = AS5600_I2C_ERROR;
     }
     return status;
@@ -172,8 +172,6 @@ as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *c
     i2c_error_t i2c_status = i2cReadTwoBytesRegister(I2C_AS5600, mem_addr, pData);
 
     if (i2c_status != I2C_SUCCESS) {
-        sprintf(buffer, "GET_ANGLE_I2C: %d", i2c_status);
-        _logger.log_error(buffer);
         status = AS5600_I2C_ERROR;
     }
     return status;

@@ -11,7 +11,7 @@ using namespace std;
 as5600_error_t As5600Periphery::init(uint32_t min_angle, uint32_t max_angle) {
     this->data.raw_angle = 0;
     data.start_angle = min_angle;
-    data.max_value = max_angle;
+    data.max_angle = max_angle;
     return AS5600_SUCCESS;
 }
 

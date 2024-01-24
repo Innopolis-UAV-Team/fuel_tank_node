@@ -47,23 +47,19 @@ typedef enum as5600_error_e
         AS5600_BAD_PARAMETER,
         AS5600_RUNTIME_ERROR,
         AS5600_I2C_ERROR,
-        // AS5600_NOT_INITIALIZED,
-        // AS5600_MAGNET_NOT_DETECTED,
-        // AS5600_MAX_WRITE_CYCLES_REACHED,
-        // AS5600_MIN_ANGLE_TOO_SMALL,
 } as5600_error_t;
 
 
 struct as5600_data
 {
+    bool dir; // 0 clockwise | 1 counterclockwise 
     uint16_t raw_angle;
-    uint16_t max_value;
+    uint16_t max_angle;
     uint16_t start_angle;
     uint16_t angle;
     uint8_t mag_status;
     uint8_t min_angle_deg = 18;
-    // uint32_t min_angle_steps = ceil(4095 * min_angle_deg/359);
-    uint32_t min_angle_steps = 206;
+    // uint32_t min_angle_steps = 206;
 };
 
 void wait(uint8_t time_ns);
@@ -72,7 +68,7 @@ class As5600Periphery
 {
 public:
     // TODO: add sensor parameters
-    as5600_data data = {.raw_angle = 0, .max_value = 4, .start_angle=0, .angle=400, .mag_status=0};
+    as5600_data data = {.dir=0,.raw_angle = 0, .max_angle = 4, .start_angle=0, .angle=400, .mag_status=0};
     
     as5600_error_t init(uint32_t min_angle, uint32_t max_angle);
     int8_t reset();
