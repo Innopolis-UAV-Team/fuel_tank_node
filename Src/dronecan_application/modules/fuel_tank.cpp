@@ -81,10 +81,11 @@ int8_t VtolFuelTank::process() {
   uint8_t status = update_data();
 
   if (status != 0) {
-    if (_last_update_time_ms + 1000 < HAL_GetTick()){
-      _logger.log_error("UPD");
-      _as5600.init(min_value, max_value);
+    if (_last_update_time_ms + 10000 * n_sec_waiting < HAL_GetTick()){
+        _logger.log_error("UPD");
+        n_sec_waiting ++;
     }
+    // _as5600.init(min_value, max_value);
     return status;
   }
 
@@ -109,6 +110,8 @@ int8_t VtolFuelTank::update_data() {
   if (as5600_stat != AS5600_SUCCESS) {
     return as5600_stat;
   }
+
+  n_sec_waiting = 0;
 
   uint16_t angle = AS5600_12_BIT_MASK & _as5600.data.raw_angle;
   
