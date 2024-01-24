@@ -7,7 +7,6 @@
 #define PLATFORM_SPECIFIC_HAL_I2C_HPP
 
 #include <cstdint>
-// #include <stdint.h>
 #include <cstddef>
 
 
@@ -31,14 +30,14 @@ int8_t isDeviceReady(uint8_t id, uint8_t n_trials);
 int8_t i2cTransmit(uint8_t id, const uint8_t tx[], uint8_t len);
 int8_t i2cReceive(uint8_t id, uint8_t *rx, uint8_t len);
 
-i2c_error_t get_8_register(uint8_t id, uint8_t mem_addr, uint8_t *const pData);
-i2c_error_t get_16_register(uint8_t id, uint8_t mem_addr,
+i2c_error_t i2cReadByteRegister(uint8_t id, uint8_t mem_addr, uint8_t *const pData);
+i2c_error_t i2cReadTwoBytesRegister(uint8_t id, uint8_t mem_addr,
                             uint16_t *const pData);
 
-i2c_error_t write_n_consecutive_bytes(uint8_t id, uint8_t reg,
+i2c_error_t i2cWriteBytesToRegister(uint8_t id, uint8_t reg,
                                       uint8_t const *const p_tx,
                                       size_t n_bytes);
-i2c_error_t write_16reg(uint8_t id,uint8_t const reg, uint16_t const tx_buffer);
+i2c_error_t i2cWriteTwoBytesToRegister(uint8_t id,uint8_t const reg, uint16_t const tx_buffer);
 
 #ifdef __cplusplus
 }

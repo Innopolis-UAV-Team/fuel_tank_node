@@ -1,11 +1,9 @@
-// Copyright (C) 2023 Dmitry Ponomarev <ponomarevda96@gmail.com>
-// Distributed under the terms of the GPL v3 license, available in the file LICENSE.
+/*
+* Copyright (C) 2024 Anastasiia Stepanova <asiiapine@gmail.com>
+* Distributed under the terms of the GPL v3 license, available in the file LICENSE.
+*/
 
 #include "periphery/as5600/as5600.hpp"
-#include "main.h"
-#include <math.h>
-#include <string> 
-#include <stdio.h>
 
 
 using namespace std;
