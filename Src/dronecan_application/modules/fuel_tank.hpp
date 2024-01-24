@@ -26,6 +26,7 @@ public:
     uint16_t min_value = 0;
     uint16_t max_value = 0;
     uint16_t volume = 1;
+    uint8_t  n_sec_waiting = 0;
 private:
     uint32_t _last_publish_time_ms{0};
     uint32_t _last_update_time_ms{0};
