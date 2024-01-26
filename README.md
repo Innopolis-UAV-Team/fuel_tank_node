@@ -19,6 +19,11 @@ The node measures fuel tank level with [AS5600](https://github.com/ZilantRobotic
 The node should measure with 10 Hz rate and publish data with 1 Hz rate.
 
 The node has the following parameters:
-- fuel.min_value (calibration value means 0% or fuel tank is empty),
-- fuel.max_value (calibration value means 100% or fuel tank is full),
-- fuel.volume (calibration value means total volume of a fuel tank).
+| №  | Register name           | Description |
+| -- | ----------------------- | ----------- |
+|  1 | uavcan.node.id          | Defines a node-ID. Allowed values [0,127]. |
+|  2 | system.name             | Defines custom node name. If empty, the node will use the default name. |
+|  3 | fuel.empty_tank_enc_deg | Defines an angle that corresponds to the empty fuel tank [degrees]. |
+|  4 | fuel.full_tank_enc_deg  | Defines an angle that corresponds to the full fuel tank [degrees]. |
+|  5 | fuel.volume             | Defines a volume of the fuel tank [cm3]. |
+|  6 | fuel.tank_id            | Defines an id of the fuel tank. |

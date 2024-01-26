@@ -5,14 +5,12 @@
  */
 
 #include "fuel_tank.hpp"
-
 #include <math.h>
-
 #include "main.h"
 
 VtolFuelTank::VtolFuelTank() {}
 
-int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_empty, uint8_t volume_cm3) {
+int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_empty, uint32_t volume_cm3) {
   char buffer[90];
   _logger.init("FuelTank");
 
@@ -34,7 +32,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_e
   
   if (angle_full == angle_empty){
 
-    sprintf(buffer, " PARAM_FUEL_TANK_EMPTY == PARAM_FUEL_TANK_EMPTY");
+    sprintf(buffer, "PARAM_FUEL_TANK_EMPTY == PARAM_FUEL_TANK_EMPTY");
     _logger.log_error(buffer);
     return 1;
 
@@ -68,8 +66,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_e
 int8_t VtolFuelTank::process() {
   uint32_t crnt_time_ms = HAL_GetTick();
 
-  // TODO: change to 1 Hz
-  if (crnt_time_ms < _last_publish_time_ms + 1000) {
+  if (crnt_time_ms < _last_update_time_ms + 100) {
     return 0;
   }
 
@@ -81,10 +78,12 @@ int8_t VtolFuelTank::process() {
         _logger.log_error("NO_DATA");
         n_sec_waiting ++;
     }
-    // _as5600.init(min_value, max_value);
     return status;
   }
 
+  if (crnt_time_ms < _last_publish_time_ms + 1000) {
+    return 0;
+  }
   _last_update_time_ms = HAL_GetTick();
   status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info,
                                                            &_transfer_id);
@@ -113,8 +112,6 @@ int8_t VtolFuelTank::update_data() {
   
   _as5600.data.angle = ((float)angle) / 4095.0f * 360.0f;
   
-  // for debug
-  // _tank_info.fuel_consumption_rate_cm3pm = _as5600.data.angle - min_value;
   uavcanSetVendorSpecificStatusCode(_as5600.data.angle);
 
   _apply_angle_boundaries();

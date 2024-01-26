@@ -16,7 +16,7 @@
 class VtolFuelTank {
 public:
     VtolFuelTank();
-    int8_t init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_empty, uint8_t volume_cm3);
+    int8_t init(uint8_t tank_id, uint32_t angle_full, uint32_t angle_empty, uint32_t volume_cm3);
     int8_t process();
     int8_t update_data();
     int8_t calibrate();
@@ -29,7 +29,7 @@ public:
     uint16_t max_value = 0;
 
     // fuel tank volume in cm3
-    uint16_t volume = 1;
+    uint32_t volume = 1;
 
 private:
     uint32_t _last_publish_time_ms{0};
