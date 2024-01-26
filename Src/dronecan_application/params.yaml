@@ -39,7 +39,7 @@ fuel.volume:
   flags: mutable
   default: 5000
   min: 0
-  max: 4294967295
+  max: 65535
 
 fuel.tank_id:
   type: Integer
