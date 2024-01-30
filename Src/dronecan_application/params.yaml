@@ -21,7 +21,7 @@ fuel.empty_tank_enc_deg:
   flags: mutable
   default: 0
   min: 0
-  max: 255
+  max: 359
 
 fuel.full_tank_enc_deg:
   type: Integer
@@ -30,16 +30,16 @@ fuel.full_tank_enc_deg:
   flags: mutable
   default: 0
   min: 0
-  max: 255
+  max: 359
 
 fuel.volume:
   type: Integer
   note: Defines a volume of the fuel tank [cm3].
   enum: PARAM_FUEL_TANK_VOLUME
   flags: mutable
-  default: 0
+  default: 5000
   min: 0
-  max: 255
+  max: 4294967295
 
 fuel.tank_id:
   type: Integer
