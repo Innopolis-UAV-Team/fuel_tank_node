@@ -16,7 +16,7 @@
 
 The node measures fuel tank level with [AS5600](https://github.com/ZilantRobotics/libperiph/tree/master/sensors/encoder) and sends [FuelTankStatus](https://dronecan.github.io/Specification/7._List_of_standard_data_types/#fueltankstatus).
 
-The node should measure with 10 Hz rate and publish data with 1 Hz rate.
+The node measure fuel level with 10 Hz rate and publish data with 1 Hz rate.
 
 The node has the following parameters:
 | №  | Register name           | Description |
@@ -27,3 +27,11 @@ The node has the following parameters:
 |  4 | fuel.full_tank_enc_deg  | Defines an angle that corresponds to the full fuel tank [degrees]. |
 |  5 | fuel.volume             | Defines a volume of the fuel tank [cm3]. |
 |  6 | fuel.tank_id            | Defines an id of the fuel tank. |
+
+### 4. CAN Messages
+- Default application messages: FuelTankStatus data
+![Alt text](/assets/dronecan_gui_tool.png "Normal application messages")
+- If there is a problem with I2C connection to AS5600 or the encoder is not connected, the node is sending the Log message **NO_DATA** once a second.
+![Alt text](/assets/dronecan_gui_tool_no_data.png "If there is a problem with I2C connection to AS5600 or the encoder is not connected")
+
+For the application builded with *DEBUG* flag:
