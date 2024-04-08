@@ -14,8 +14,8 @@ extern IWDG_HandleTypeDef hiwdg;
 #endif
 
 void application_entry_point() {
-    paramsInit(static_cast<uint8_t>(IntParamsIndexes::INTEGER_PARAMS_AMOUNT), NUM_OF_STR_PARAMS);
-    paramsLoadFromFlash();
+    paramsInit((ParamIndex_t)IntParamsIndexes::INTEGER_PARAMS_AMOUNT, NUM_OF_STR_PARAMS, -1, 1);
+    paramsLoad();
 
     auto node_id = paramsGetIntegerValue(PARAM_UAVCAN_NODE_ID);
     auto tank_id = paramsGetIntegerValue(PARAM_FUEL_TANK_ID);

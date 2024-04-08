@@ -59,7 +59,6 @@ struct as5600_data
     uint16_t angle;
     uint8_t mag_status;
     uint8_t min_angle_deg = 18;
-    // uint32_t min_angle_steps = 206;
 };
 
 void wait(uint8_t time_ns);
@@ -70,7 +69,7 @@ public:
     // TODO: add sensor parameters
     as5600_data data = {.dir=0,.raw_angle = 0, .max_angle = 4, .start_angle=0, .angle=400, .mag_status=0};
     
-    as5600_error_t init(uint32_t min_angle, uint32_t max_angle);
+    as5600_error_t init(uint16_t min_angle, uint16_t max_angle);
     int8_t reset();
     int8_t update_zpos();
     as5600_error_t calibrate();
