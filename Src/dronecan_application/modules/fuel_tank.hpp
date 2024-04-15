@@ -37,7 +37,7 @@ private:
 
     float angles_buffer[15] = {};
     float filtered_angle;
-    uint8_t buffer_cnr;
+    uint8_t buffer_ctr;
     uint8_t window_size;
     static bool is_vehicle_armed;
     static uint32_t ttl_cmd;

@@ -10,15 +10,13 @@
 
 #include "main.h"
 
-// TODO: uint16_t angle = AS5600_12_BIT_MASK & _as5600.data.raw_angle; change it to direct reading
-
 uint32_t VtolFuelTank::cmd_end_time_ms = 0;
 uint32_t VtolFuelTank::ttl_cmd = 1000;
 bool VtolFuelTank::is_vehicle_armed = false;
 
-void shiftArrayLeft(float arr[], int size) {
-    for (int i = 0; i < size; i++) {
-        arr[i] = arr[i+1];  // Move each element one position to the left
+static void movingAverage(float* prev_avg, float crnt_val, uint16_t size) {
+    if (prev_avg != nullptr && size != 0) {
+        *prev_avg = (*prev_avg * (size - 1) + crnt_val) / size;
     }
 }
 
@@ -30,7 +28,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full,
     _logger.init("FuelTank");
     int hal_status = 0;
     volume = volume_cm3;
-    buffer_cnr = 0;
+    buffer_ctr = 0;
     hal_status = isDeviceReady(I2C_AS5600, 100);
     if (hal_status != 0) {
         sprintf(buffer, "I2C_isDevReady %d", hal_status);
@@ -96,7 +94,7 @@ uint8_t VtolFuelTank::update_params() {
         max_value = new_max_value;
 
         _as5600.init(min_value, max_value);
-        buffer_cnr = 0;
+        buffer_ctr = 0;
     }
     return 0;
 }
@@ -148,30 +146,15 @@ uint8_t VtolFuelTank::update_data() {
     // Moving average on values
     if (is_vehicle_armed) window_size = 15;
     else window_size = 5;
+    movingAverage(&filtered_angle, _as5600.data.angle, window_size);
 
-    if (buffer_cnr == 14) {
-        shiftArrayLeft(angles_buffer, buffer_cnr);
-        angles_buffer[buffer_cnr] = _as5600.data.angle;
-    } else if (buffer_cnr < 14) {
-        angles_buffer[buffer_cnr] = _as5600.data.angle;
-        buffer_cnr ++;
-        return 0;
+    if (buffer_ctr < 14) {
+        buffer_ctr ++;
     }
-
-    float sum = 0;
-    for (int i = 0; i < window_size; i++) {
-        sum += angles_buffer[buffer_cnr - i];
-    }
-
-    filtered_angle = sum / (float) window_size;
 
     uavcanSetVendorSpecificStatusCode((uint16_t)(filtered_angle));
     
     _apply_angle_boundaries();
-
-    if (min_value == max_value) {
-        return 1;
-    }
 
     _tank_info.available_fuel_volume_percent =
           (filtered_angle - min_value) * 100 / (max_value - min_value);
