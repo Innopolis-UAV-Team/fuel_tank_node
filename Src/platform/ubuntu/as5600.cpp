@@ -8,7 +8,8 @@
 
 using namespace std;
 float one_step_angle_val = 0.0;
-uint16_t max_raw_value = 4095.0f;
+uint16_t max_raw_value = 4095;
+
 as5600_error_t As5600Periphery::init(uint16_t min_angle, uint16_t max_angle) {
     this->data.raw_angle = 0;
     data.start_angle = min_angle;
@@ -42,9 +43,7 @@ as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *c
     uint16_t * raw_angle = &data.raw_angle;
     switch (mem_addr)     {
     case RAW_ANGLE:
-        *raw_angle += (HAL_GetTick()/1000) % max_raw_value;
-        if (*raw_angle > data.max_angle) 
-        // data.angle =  *raw_angle * (data.max_angle- data.start_angle)/ max_raw_value;
+        *raw_angle = (HAL_GetTick() / 10) % max_raw_value;
         *pData = *raw_angle;
         printf("AS5600:\tRAW_ANGLE_READING\t%d\n", *pData);
         break;

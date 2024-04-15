@@ -17,18 +17,9 @@ uint32_t VtolFuelTank::ttl_cmd = 1000;
 bool VtolFuelTank::is_vehicle_armed = false;
 
 void shiftArrayLeft(float arr[], int size) {
-    for (int i = 1; i < size; i++) {
-        arr[i - 1] = arr[i];  // Move each element one position to the left
+    for (int i = 0; i < size; i++) {
+        arr[i] = arr[i+1];  // Move each element one position to the left
     }
-}
-
-void updateMovingAverage(float newData, float* sum, int windowSize, float* movingAverage, uint8_t* count) {
-    *sum += newData;
-    if (*count >= windowSize) {
-        *sum -= movingAverage[*count % windowSize];
-    }
-    movingAverage[*count % windowSize] = newData;
-    *count += 1;
 }
 
 VtolFuelTank::VtolFuelTank() {}
@@ -67,9 +58,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full,
     auto sub_id =
         uavcanSubscribe(UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE,
                         UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID, raw_command_callback);
-    if (sub_id < 0) {
-        _logger.log_debug("sub_id < 0");
-    }
+    if (sub_id < 0) _logger.log_debug("sub_id < 0");
 
     _logger.log_debug("INIT COMP");
     return 0; 
@@ -77,9 +66,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full,
 
 uint8_t VtolFuelTank::update_params() {
     static uint32_t next_update_time = 0;
-    if (HAL_GetTick() < next_update_time) {
-        return 0;
-    }
+    if (HAL_GetTick() < next_update_time) return 0;
     next_update_time = HAL_GetTick() + 1000;
 
     uint16_t angle_full = paramsGetIntegerValue(PARAM_FUEL_TANK_FULL);
@@ -87,26 +74,30 @@ uint8_t VtolFuelTank::update_params() {
     volume = paramsGetIntegerValue(PARAM_FUEL_TANK_VOLUME);
 
     if (angle_full == angle_empty) {
-      _logger.log_error("PARAM_FUEL_TANK_EMPTY == PARAM_FUEL_TANK_FULL");
+      _logger.log_debug("empty_tank_enc_deg == full_tank_enc_deg");
         return 1;
+    }
 
-    #if !NDEBUG
-      char buffer[90];
-      sprintf(buffer, "empty: %d full: %d", angle_empty, angle_full);
-      _logger.log_debug(buffer);
-    #endif
+    uint16_t new_min_value;
+    uint16_t new_max_value;
 
-    } else if (angle_full < angle_empty) {
+    if (angle_full < angle_empty) {
         _as5600.data.dir = 1;  //  counterclockwise
-        min_value = angle_full;
-        max_value = angle_empty;
+        new_min_value = angle_full;
+        new_max_value = angle_empty;
     } else {
         _as5600.data.dir = 0;  // clockwise
-        min_value = angle_empty;
-        max_value = angle_full;
+        new_min_value = angle_empty;
+        new_max_value = angle_full;
     }
-    _as5600.init(min_value, max_value);
-    buffer_cnr = 0;
+
+    if (new_min_value != min_value || new_max_value != max_value) {
+        min_value = new_min_value;
+        max_value = new_max_value;
+
+        _as5600.init(min_value, max_value);
+        buffer_cnr = 0;
+    }
     return 0;
 }
 
@@ -117,10 +108,12 @@ int8_t VtolFuelTank::process() {
 
     uint8_t status = update_data();
     static uint32_t next_error_publish = 0;
+    _last_update_time_ms = HAL_GetTick();
+
     if (status != 0) {
         if (_last_update_time_ms + 10000 * n_sec_waiting < HAL_GetTick() && next_error_publish < HAL_GetTick()) {
             _logger.log_error("NO_DATA");
-            next_error_publish += 1000;
+            next_error_publish += crnt_time_ms + 1000;
             n_sec_waiting++;
         }
         return status;
@@ -128,10 +121,10 @@ int8_t VtolFuelTank::process() {
 
     if (crnt_time_ms < _last_publish_time_ms + 1000) return 0;
 
-    _last_update_time_ms = HAL_GetTick();
     status = dronecan_equipment_ice_fuel_tank_status_publish(&_tank_info,
                                                             &_transfer_id);
     _transfer_id++;
+    
     _last_publish_time_ms = HAL_GetTick();
 
     if (cmd_end_time_ms < HAL_GetTick()) is_vehicle_armed = false;
@@ -142,36 +135,27 @@ int8_t VtolFuelTank::process() {
 uint8_t VtolFuelTank::update_data() {
     if (update_params() == 1) return 1;
 
-    static char buffer[90];
     as5600_error_t as5600_stat =
         _as5600.get_angle_data(RAW_ANGLE, &_as5600.data.raw_angle);
-    static uint32_t next_msg_ms = 0;
-
 
     if (as5600_stat != AS5600_SUCCESS) return as5600_stat;
 
     n_sec_waiting = 0;
-    #ifdef HAL_I2C
     uint16_t angle = AS5600_12_BIT_MASK & _as5600.data.raw_angle;
-    #else
-    uint16_t angle = _as5600.data.raw_angle;
-    #endif
 
     _as5600.data.angle = ((float)angle) / 4095.0f * 360.0f;
-
-    uavcanSetVendorSpecificStatusCode(_as5600.data.angle);
 
     // Moving average on values
     if (is_vehicle_armed) window_size = 15;
     else window_size = 5;
 
-    filtered_angle = 0;
-    if (buffer_cnr == 15) {
+    if (buffer_cnr == 14) {
         shiftArrayLeft(angles_buffer, buffer_cnr);
         angles_buffer[buffer_cnr] = _as5600.data.angle;
-    } else {
+    } else if (buffer_cnr < 14) {
         angles_buffer[buffer_cnr] = _as5600.data.angle;
         buffer_cnr ++;
+        return 0;
     }
 
     float sum = 0;
@@ -180,16 +164,10 @@ uint8_t VtolFuelTank::update_data() {
     }
 
     filtered_angle = sum / (float) window_size;
-    _apply_angle_boundaries();
 
-    if (HAL_GetTick() > next_msg_ms) {
-        char buffer[90];
-        sprintf(buffer, "raw angle %d min:%d max:%d angle: %d, avg: %d", 
-              _as5600.data.raw_angle, 
-              min_value, max_value, (int)_as5600.data.angle, (int) (sum / (float)(window_size)));
-        _logger.log_debug(buffer);
-        next_msg_ms = HAL_GetTick() + 1000;
-    }
+    uavcanSetVendorSpecificStatusCode((uint16_t)(filtered_angle));
+    
+    _apply_angle_boundaries();
 
     if (min_value == max_value) {
         return 1;

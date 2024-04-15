@@ -29,7 +29,7 @@ void application_entry_point() {
     VtolFuelTank fuel_tank;
     res = fuel_tank.init(tank_id, paramsGetIntegerValue(PARAM_FUEL_TANK_FULL) , paramsGetIntegerValue(PARAM_FUEL_TANK_EMPTY), paramsGetIntegerValue(PARAM_FUEL_TANK_VOLUME));    
     while(true) {
-        if (res != 0){
+        if (res != 0) {
             LedPeriphery::toggle(LedColor::RED_COLOR);
         } else {
             LedPeriphery::toggle(LedColor::BLUE_COLOR);

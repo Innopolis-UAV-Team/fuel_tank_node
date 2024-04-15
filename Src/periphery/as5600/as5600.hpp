@@ -41,8 +41,7 @@
 typedef uint8_t as5600_addr;
 
 
-typedef enum as5600_error_e
-{
+typedef enum as5600_error_e {
         AS5600_SUCCESS = 0,
         AS5600_BAD_PARAMETER,
         AS5600_RUNTIME_ERROR,
@@ -50,8 +49,7 @@ typedef enum as5600_error_e
 } as5600_error_t;
 
 
-struct as5600_data
-{
+struct as5600_data {
     bool dir; // 0 clockwise | 1 counterclockwise 
     uint16_t raw_angle;
     uint16_t max_angle;
@@ -63,8 +61,7 @@ struct as5600_data
 
 void wait(uint8_t time_ns);
 
-class As5600Periphery
-{
+class As5600Periphery {
 public:
     // TODO: add sensor parameters
     as5600_data data = {.dir=0,.raw_angle = 0, .max_angle = 4, .start_angle=0, .angle=400, .mag_status=0};
