@@ -54,8 +54,7 @@ int8_t VtolFuelTank::init(uint8_t tank_id, uint32_t angle_full,
     }
 
     auto sub_id =
-        uavcanSubscribe(UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE,
-                        UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID, raw_command_callback);
+        uavcanSubscribe(UAVCAN_EQUIPMENT_ESC_RAWCOMMAND, raw_command_callback);
     if (sub_id < 0) _logger.log_debug("sub_id < 0");
 
     _logger.log_debug("INIT COMP");
