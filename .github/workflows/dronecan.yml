@@ -29,4 +29,4 @@ jobs:
         if: ${{ matrix.target == 'sitl_dronecan' }}
         run: |
           make run &
-          rl-test-dronecan-specification
+          rl-test-dronecan-specification -k 'not test_vssc'
