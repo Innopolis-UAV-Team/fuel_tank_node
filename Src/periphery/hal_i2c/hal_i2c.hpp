@@ -17,12 +17,12 @@ extern "C" {
 #endif
 
 typedef enum i2c_error_e {
-  I2C_SUCCESS = 0,
-  I2C_BAD_PARAMETER,
-  I2C_RUNTIME_ERROR,
-  I2C_TRANSMIT_ERROR,
-  I2C_RECEIVE_ERROR,
-  I2C_ERROR,
+    I2C_SUCCESS = 0,
+    I2C_BAD_PARAMETER,
+    I2C_RUNTIME_ERROR,
+    I2C_TRANSMIT_ERROR,
+    I2C_RECEIVE_ERROR,
+    I2C_ERROR,
 } i2c_error_t;
 
 int8_t isDeviceReady(uint8_t id, uint8_t n_trials);

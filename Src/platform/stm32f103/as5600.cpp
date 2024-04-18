@@ -7,12 +7,7 @@
 
 using namespace std;
 
-// void calc_min_angle_steps(uint32_t min_angle_deg){
-//     uint32_t min_angle_steps = ceil(4095 * min_angle_deg/359);
-// }
-
-as5600_error_t As5600Periphery::init(uint32_t min_angle, uint32_t max_angle)
-{
+as5600_error_t As5600Periphery::init(uint16_t min_angle, uint16_t max_angle) {
     _logger.init("as5600");
 
     as5600_error_t status = get_magnet_status(&data.mag_status);
@@ -22,12 +17,10 @@ as5600_error_t As5600Periphery::init(uint32_t min_angle, uint32_t max_angle)
     }
     data.max_angle = max_angle;
     data.start_angle = min_angle;
-    // data.min_angle_steps = calc_min_angle_steps(min_angle);
     return AS5600_SUCCESS;
 }
 
-as5600_error_t As5600Periphery::calibrate()
-{
+as5600_error_t As5600Periphery::calibrate() {
 
     as5600_error_t status = get_angle_data(RAW_ANGLE, &data.raw_angle);
 
@@ -66,7 +59,7 @@ as5600_error_t As5600Periphery::calibrate()
     return AS5600_SUCCESS;
 }
 
-as5600_error_t As5600Periphery::set_max_angle(uint16_t const max_angle){
+as5600_error_t As5600Periphery::set_max_angle(uint16_t const max_angle) {
 
     uint8_t const reg = MPOS;
     uint16_t const reg_mask = 0x0FFFU;
@@ -83,8 +76,7 @@ as5600_error_t As5600Periphery::set_max_angle(uint16_t const max_angle){
     return AS5600_SUCCESS;
 }
 
-as5600_error_t As5600Periphery::set_zero_position(uint16_t const val)
-{
+as5600_error_t As5600Periphery::set_zero_position(uint16_t const val) {
     uint16_t const first_byte_mask = 0x00FF;
     size_t const count = sizeof(uint16_t);
     uint8_t tx_buffer[2];
@@ -99,8 +91,7 @@ as5600_error_t As5600Periphery::set_zero_position(uint16_t const val)
     return AS5600_SUCCESS;
 }
 
-as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData)
-{
+as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData) {
 
     if (pData == NULL) {
         return AS5600_BAD_PARAMETER;
@@ -113,8 +104,7 @@ as5600_error_t As5600Periphery::get_magnet_status(uint8_t *const pData)
     return AS5600_SUCCESS;
 }
 
-as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pData)
-{
+as5600_error_t As5600Periphery::get_angle_data(as5600_addr mem_addr, uint16_t *const pData) {
 
     if (pData == NULL) {
         return AS5600_BAD_PARAMETER;

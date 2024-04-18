@@ -5,7 +5,7 @@
 
 #include "logger.hpp"
 
-int8_t Logger::init(const char* source = ""){
+int8_t Logger::init(const char* source = "") {
     return set_source(this->_msg, source);
 }
 
@@ -25,7 +25,7 @@ void Logger::log_error(const char* text) {
     publish();
 }
 
-void Logger::publish(){
+void Logger::publish() {
     dronecan_protocol_debug_log_message_publish(&this->_msg, &_transfer_id);
     _transfer_id++;
 }
