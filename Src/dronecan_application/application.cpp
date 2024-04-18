@@ -25,16 +25,17 @@ void application_entry_point() {
 
     LedPeriphery::reset();
 
-    int8_t res = 0;
     VtolFuelTank fuel_tank;
-    res = fuel_tank.init(tank_id, paramsGetIntegerValue(PARAM_FUEL_TANK_FULL) , paramsGetIntegerValue(PARAM_FUEL_TANK_EMPTY), paramsGetIntegerValue(PARAM_FUEL_TANK_VOLUME));    
+    fuel_tank.init(tank_id, paramsGetIntegerValue(PARAM_FUEL_TANK_FULL) , paramsGetIntegerValue(PARAM_FUEL_TANK_EMPTY), paramsGetIntegerValue(PARAM_FUEL_TANK_VOLUME));    
     while(true) {
-        if (res != 0) {
+        if (fuel_tank.module_status != ModuleStatus::MODULE_OK) {
+
             LedPeriphery::toggle(LedColor::RED_COLOR);
         } else {
             LedPeriphery::toggle(LedColor::BLUE_COLOR);
         }
-        res = fuel_tank.process();
+        uavcanSetNodeHealth((NodeStatusHealth_t)fuel_tank.module_status);
+        fuel_tank.process();
         uavcanSpinOnce();
 
         #ifdef HAL_IWDG_MODULE_ENABLED
