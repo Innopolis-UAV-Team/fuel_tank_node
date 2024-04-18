@@ -1,1 +1,3 @@
-uavcan.node.id:         39
+uavcan.node.id:           39
+fuel.empty_tank_enc_deg:  0
+fuel.full_tank_enc_deg:   359
